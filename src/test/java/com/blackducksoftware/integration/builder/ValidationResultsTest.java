@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +36,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-
 public class ValidationResultsTest {
 	private static final String KEY_PREFIX = "key-";
 	private static final String TEST_MESSAGE_PREFIX = "Test Message ";
@@ -46,7 +44,7 @@ public class ValidationResultsTest {
 	private static final String KEY_0 = "key-0";
 
 	private ValidationResults<String, String> createTestData(final List<ValidationResultEnum> resultTypeList) {
-		final ValidationResults<String, String> results = new ValidationResults<String, String>();
+		final ValidationResults<String, String> results = new ValidationResults<>();
 		final int count = resultTypeList.size();
 		for (int index = 0; index < count; index++) {
 			final String key = KEY_PREFIX + index;
@@ -72,13 +70,8 @@ public class ValidationResultsTest {
 	}
 
 	@Test
-	public void testValidationResultEquals() {
-		EqualsVerifier.forClass(ValidationResult.class).suppress(Warning.STRICT_INHERITANCE).verify();
-	}
-
-	@Test
 	public void testValidationResultsConstructor() {
-		final ValidationResults<Object, Object> result = new ValidationResults<Object, Object>();
+		final ValidationResults<Object, Object> result = new ValidationResults<>();
 		assertNotNull(result);
 		assertTrue(result.isEmpty());
 		assertFalse(result.isSuccess());
@@ -87,7 +80,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testAddResult() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
 		items.add(ValidationResultEnum.ERROR);
@@ -103,7 +96,7 @@ public class ValidationResultsTest {
 
 	@Test
 	public void testSuccess() {
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.OK);
@@ -117,7 +110,7 @@ public class ValidationResultsTest {
 
 	@Test
 	public void testWarnings() {
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.WARN);
 		items.add(ValidationResultEnum.WARN);
 		items.add(ValidationResultEnum.WARN);
@@ -132,7 +125,7 @@ public class ValidationResultsTest {
 
 	@Test
 	public void testErrors() {
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.ERROR);
@@ -147,7 +140,7 @@ public class ValidationResultsTest {
 
 	@Test
 	public void testGetMap() {
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
 		items.add(ValidationResultEnum.ERROR);
@@ -156,15 +149,25 @@ public class ValidationResultsTest {
 
 		assertNotNull(results);
 		final Map<String, List<ValidationResult>> map = results.getResultMap();
-		assertTrue(map.get(KEY_0).contains(new ValidationResult(ValidationResultEnum.OK, TEST_MESSAGE_PREFIX + "0")));
-		assertTrue(map.get(KEY_1).contains(new ValidationResult(ValidationResultEnum.WARN, TEST_MESSAGE_PREFIX + "1")));
-		assertTrue(
-				map.get(KEY_2).contains(new ValidationResult(ValidationResultEnum.ERROR, TEST_MESSAGE_PREFIX + "2")));
+		assertListContainsMessage(map.get(KEY_0), ValidationResultEnum.OK, TEST_MESSAGE_PREFIX + "0");
+		assertListContainsMessage(map.get(KEY_1), ValidationResultEnum.WARN, TEST_MESSAGE_PREFIX + "1");
+		assertListContainsMessage(map.get(KEY_2), ValidationResultEnum.ERROR, TEST_MESSAGE_PREFIX + "2");
+	}
+
+	private void assertListContainsMessage(final List<ValidationResult> results,
+			final ValidationResultEnum validationResultToBeFound, final String messageToBeFound) {
+		for (final ValidationResult result : results) {
+			if (validationResultToBeFound == result.getResultType() && result.getMessage().equals(messageToBeFound)) {
+				return;
+			}
+		}
+
+		fail("Couldn't find the resultType and/or message");
 	}
 
 	@Test
 	public void testGetResultList() {
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 
 		final ValidationResults<String, String> results = createTestData(items);
@@ -186,7 +189,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testGetResultListWithEnum() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.OK);
@@ -212,7 +215,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testGetResultListInvalidKey() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
@@ -229,7 +232,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testGetResultListEnumInvalidKey() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
@@ -246,7 +249,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testGetResultStringWithEnum() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.OK);
@@ -272,7 +275,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testGetResultStringEnumInvalidKey() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
@@ -289,7 +292,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testGetConstructedObject() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
@@ -308,7 +311,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testValidationStatus() {
 
-		List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.ERROR);
@@ -321,7 +324,7 @@ public class ValidationResultsTest {
 
 		assertEquals(status.size(), 1);
 
-		items = new ArrayList<ValidationResultEnum>();
+		items = new ArrayList<>();
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.ERROR);
 		items.add(ValidationResultEnum.WARN);
@@ -342,7 +345,7 @@ public class ValidationResultsTest {
 	@Test
 	public void testHasErrorsWithField() {
 
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.WARN);
@@ -364,7 +367,7 @@ public class ValidationResultsTest {
 
 	@Test
 	public void testHasWarningsWithField() {
-		final List<ValidationResultEnum> items = new ArrayList<ValidationResultEnum>();
+		final List<ValidationResultEnum> items = new ArrayList<>();
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.OK);
 		items.add(ValidationResultEnum.ERROR);

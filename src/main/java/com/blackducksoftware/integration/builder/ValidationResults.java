@@ -71,9 +71,21 @@ public class ValidationResults<K, T> {
 		}
 		status.add(resultType);
 
-		if (!resultList.contains(result)) {
-			// This will prevent duplication
-			resultList.add(result);
+		addIfNotTheSame(resultList, result);
+	}
+
+	private void addIfNotTheSame(final List<ValidationResult> list, final ValidationResult potentialResult) {
+		boolean found = false;
+		for (final ValidationResult result : list) {
+			if (result.getResultType() == potentialResult.getResultType()
+					&& StringUtils.trimToEmpty(result.getMessage()).equals(potentialResult.getMessage())) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			list.add(potentialResult);
 		}
 	}
 
