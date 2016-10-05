@@ -116,13 +116,11 @@ public class TestLogger extends IntLogger {
 
 	@Override
 	public void trace(final String txt) {
-		System.out.println(String.format("trace: %s", txt));
 		outputList.add(txt);
 	}
 
 	@Override
 	public void trace(final String txt, final Throwable e) {
-		System.out.println(String.format("trace: %s, exception: %s", txt, e.getMessage()));
 		outputList.add(txt);
 		errorList.add(e);
 	}
