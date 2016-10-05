@@ -151,7 +151,30 @@ public class ValidationResults<K, T> {
 		return throwables;
 	}
 
-	public T getConstructedObject() {
+	public List<String> getAllResultList(final ValidationResultEnum resultEnum) {
+		 		final List<String> resultList = new ArrayList<String>();
+		 
+		 		for (final Entry<K, Map<ValidationResultEnum, List<ValidationResult>>> entry : resultMap.entrySet()) {
+		 			if (entry.getValue().containsKey(resultEnum)) {
+		 				for (final ValidationResult result : entry.getValue().get(resultEnum)) {
+		 					resultList.add(result.getMessage());
+		 				}
+		 			}
+		 		}
+		 		return resultList;
+		 	}
+		 
+		 	public String getAllResultString(final ValidationResultEnum resultEnum) {
+		 		String resultString = "";
+	
+		 		final List<String> resultList = getAllResultList(resultEnum);
+		 		if (!resultList.isEmpty()) {
+		 			resultString = StringUtils.join(resultList, "\n");
+		 		}
+		 		return resultString;
+		 	}
+		 
+		 public T getConstructedObject() {
 		return constructedObject;
 	}
 
