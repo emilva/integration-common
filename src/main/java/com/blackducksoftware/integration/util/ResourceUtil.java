@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils;
 
 public class ResourceUtil {
 	public static InputStream getResourceAsStream(final Class<?> clazz, final String resourceName) throws IOException {
-		return clazz.getResourceAsStream(resourceName);
+		return clazz.getClassLoader().getResourceAsStream(resourceName);
 	}
 
 	public static InputStream getResourceAsStream(final String resourceName) throws IOException {
