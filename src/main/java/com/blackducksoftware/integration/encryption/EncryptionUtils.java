@@ -44,121 +44,123 @@ import org.apache.commons.lang3.StringUtils;
 import com.blackducksoftware.integration.exception.EncryptionException;
 
 public class EncryptionUtils {
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-	private static final String EMBEDDED_SUN_KEY_FILE = "/Sun-Key.jceks";
-	private static final String EMBEDDED_IBM_KEY_FILE = "/IBM-Key.jceks";
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
-	// needs to be at least 8 characters
-	private static final char[] KEY_PASS = { 'b', 'l', 'a', 'c', 'k', 'd', 'u', 'c', 'k', '1', '2', '3', 'I', 'n', 't',
-			'e', 'g', 'r', 'a', 't', 'i', 'o', 'n' };
+    private static final String EMBEDDED_SUN_KEY_FILE = "/Sun-Key.jceks";
 
-	public String alterString(final String password, final InputStream encryptionKeyStream, final int cipherMode)
-			throws EncryptionException {
-		assertValidPassword(password);
+    private static final String EMBEDDED_IBM_KEY_FILE = "/IBM-Key.jceks";
 
-		final Key key = getKey(encryptionKeyStream);
+    // needs to be at least 8 characters
+    private static final char[] KEY_PASS = { 'b', 'l', 'a', 'c', 'k', 'd', 'u', 'c', 'k', '1', '2', '3', 'I', 'n', 't',
+            'e', 'g', 'r', 'a', 't', 'i', 'o', 'n' };
 
-		final String alteredString = getAlteredString(password, cipherMode, key);
-		return alteredString;
-	}
+    public String alterString(final String password, final InputStream encryptionKeyStream, final int cipherMode)
+            throws EncryptionException {
+        assertValidPassword(password);
 
-	private void assertValidPassword(final String password) {
-		if (StringUtils.isBlank(password)) {
-			throw new IllegalArgumentException("Please provide a non-blank password.");
-		}
-	}
+        final Key key = getKey(encryptionKeyStream);
 
-	private Key getKey(final InputStream encryptionKeyStream) throws EncryptionException {
-		Key key = null;
-		if (encryptionKeyStream != null) {
-			try {
-				key = retrieveKeyFromInputStream(encryptionKeyStream);
-			} catch (final Exception e) {
-				throw new EncryptionException("Failed to retrieve the encryption key from the provided input stream.");
-			}
-		} else {
-			try {
-				final InputStream inputStream = getResourceAsStream(EMBEDDED_SUN_KEY_FILE);
-				key = retrieveKeyFromInputStream(inputStream);
-			} catch (final Exception e) {
-				try {
-					final InputStream inputStream = getResourceAsStream(EMBEDDED_IBM_KEY_FILE);
-					key = retrieveKeyFromInputStream(inputStream);
-				} catch (final Exception e1) {
-					throw new EncryptionException("Failed to retrieve the encryption key from classpath", e);
-				}
-			}
-		}
+        final String alteredString = getAlteredString(password, cipherMode, key);
+        return alteredString;
+    }
 
-		if (key == null) {
-			throw new EncryptionException("The encryption key is null");
-		}
+    private void assertValidPassword(final String password) {
+        if (StringUtils.isBlank(password)) {
+            throw new IllegalArgumentException("Please provide a non-blank password.");
+        }
+    }
 
-		return key;
-	}
+    private Key getKey(final InputStream encryptionKeyStream) throws EncryptionException {
+        Key key = null;
+        if (encryptionKeyStream != null) {
+            try {
+                key = retrieveKeyFromInputStream(encryptionKeyStream);
+            } catch (final Exception e) {
+                throw new EncryptionException("Failed to retrieve the encryption key from the provided input stream.");
+            }
+        } else {
+            try {
+                final InputStream inputStream = getResourceAsStream(EMBEDDED_SUN_KEY_FILE);
+                key = retrieveKeyFromInputStream(inputStream);
+            } catch (final Exception e) {
+                try {
+                    final InputStream inputStream = getResourceAsStream(EMBEDDED_IBM_KEY_FILE);
+                    key = retrieveKeyFromInputStream(inputStream);
+                } catch (final Exception e1) {
+                    throw new EncryptionException("Failed to retrieve the encryption key from classpath", e);
+                }
+            }
+        }
 
-	private String getAlteredString(final String original, final int cipherMode, final Key key)
-			throws EncryptionException {
-		String alteredString = null;
-		try {
-			byte[] bytes = null;
-			final Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-			bytes = original.getBytes(UTF8);
+        if (key == null) {
+            throw new EncryptionException("The encryption key is null");
+        }
 
-			cipher.init(cipherMode, key);
-			bytes = Arrays.copyOf(bytes, 64);
+        return key;
+    }
 
-			if (Cipher.ENCRYPT_MODE == cipherMode) {
-				alteredString = encrypt(cipher, bytes);
-			} else {
-				alteredString = decrypt(cipher, bytes);
-			}
-		} catch (final Exception e) {
-			throw new EncryptionException(e);
-		}
+    private String getAlteredString(final String original, final int cipherMode, final Key key)
+            throws EncryptionException {
+        String alteredString = null;
+        try {
+            byte[] bytes = null;
+            final Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
+            bytes = original.getBytes(UTF8);
 
-		return alteredString;
-	}
+            cipher.init(cipherMode, key);
+            bytes = Arrays.copyOf(bytes, 64);
 
-	private String encrypt(final Cipher cipher, final byte[] bytes)
-			throws IllegalBlockSizeException, BadPaddingException {
-		byte[] buffer = cipher.doFinal(bytes);
-		buffer = Arrays.copyOf(buffer, 64);
+            if (Cipher.ENCRYPT_MODE == cipherMode) {
+                alteredString = encrypt(cipher, bytes);
+            } else {
+                alteredString = decrypt(cipher, bytes);
+            }
+        } catch (final Exception e) {
+            throw new EncryptionException(e);
+        }
 
-		final String encryptedPassword = new String(Base64.encodeBase64(buffer), UTF8).trim();
-		return encryptedPassword;
-	}
+        return alteredString;
+    }
 
-	private String decrypt(final Cipher cipher, final byte[] bytes)
-			throws IllegalBlockSizeException, BadPaddingException {
-		byte[] buffer = cipher.doFinal(Base64.decodeBase64(bytes));
-		buffer = Arrays.copyOf(buffer, 64);
+    private String encrypt(final Cipher cipher, final byte[] bytes)
+            throws IllegalBlockSizeException, BadPaddingException {
+        byte[] buffer = cipher.doFinal(bytes);
+        buffer = Arrays.copyOf(buffer, 64);
 
-		final String decryptedString = new String(buffer, UTF8).trim();
-		return decryptedString;
-	}
+        final String encryptedPassword = new String(Base64.encodeBase64(buffer), UTF8).trim();
+        return encryptedPassword;
+    }
 
-	private Key retrieveKeyFromInputStream(final InputStream inputStream) throws NoSuchAlgorithmException,
-			CertificateException, IOException, UnrecoverableKeyException, KeyStoreException {
-		try {
-			final KeyStore keystore = KeyStore.getInstance("JCEKS");
-			keystore.load(inputStream, KEY_PASS);
-			final Key key = keystore.getKey("keyStore", KEY_PASS);
-			return key;
-		} finally {
-			IOUtils.closeQuietly(inputStream);
-		}
-	}
+    private String decrypt(final Cipher cipher, final byte[] bytes)
+            throws IllegalBlockSizeException, BadPaddingException {
+        byte[] buffer = cipher.doFinal(Base64.decodeBase64(bytes));
+        buffer = Arrays.copyOf(buffer, 64);
 
-	private InputStream getResourceAsStream(final String resourceName) throws IOException {
-		URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
-		if (url == null) {
-			url = EncryptionUtils.class.getResource(resourceName);
-		}
-		if (url != null) {
-			return url.openStream();
-		}
-		throw new IOException("Failed to retrieve the resource from classpath");
-	}
+        final String decryptedString = new String(buffer, UTF8).trim();
+        return decryptedString;
+    }
+
+    private Key retrieveKeyFromInputStream(final InputStream inputStream) throws NoSuchAlgorithmException,
+            CertificateException, IOException, UnrecoverableKeyException, KeyStoreException {
+        try {
+            final KeyStore keystore = KeyStore.getInstance("JCEKS");
+            keystore.load(inputStream, KEY_PASS);
+            final Key key = keystore.getKey("keyStore", KEY_PASS);
+            return key;
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
+
+    private InputStream getResourceAsStream(final String resourceName) throws IOException {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
+        if (url == null) {
+            url = EncryptionUtils.class.getResource(resourceName);
+        }
+        if (url != null) {
+            return url.openStream();
+        }
+        throw new IOException("Failed to retrieve the resource from classpath");
+    }
 
 }

@@ -22,32 +22,32 @@
 package com.blackducksoftware.integration.exception;
 
 public class ValidationException extends RuntimeException {
-	private static final long serialVersionUID = 9001308081326471943L;
+    private static final long serialVersionUID = 9001308081326471943L;
 
-	private final ValidationExceptionEnum validationExceptionEnum;
+    private final ValidationExceptionEnum validationExceptionEnum;
 
-	public ValidationException(final ValidationExceptionEnum validationExceptionEnum) {
-		this.validationExceptionEnum = validationExceptionEnum;
-	}
+    public ValidationException(final ValidationExceptionEnum validationExceptionEnum) {
+        this.validationExceptionEnum = validationExceptionEnum;
+    }
 
-	public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final String message) {
-		super(message);
-		this.validationExceptionEnum = validationExceptionEnum;
-	}
+    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final String message) {
+        super(message);
+        this.validationExceptionEnum = validationExceptionEnum;
+    }
 
-	public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final Throwable cause) {
-		super(cause);
-		this.validationExceptionEnum = validationExceptionEnum;
-	}
+    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final Throwable cause) {
+        super(cause);
+        this.validationExceptionEnum = validationExceptionEnum;
+    }
 
-	public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final String message,
-			final Throwable cause) {
-		super(message, cause);
-		this.validationExceptionEnum = validationExceptionEnum;
-	}
+    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final String message,
+            final Throwable cause) {
+        super(message, cause);
+        this.validationExceptionEnum = validationExceptionEnum;
+    }
 
-	public ValidationExceptionEnum getValidationExceptionEnum() {
-		return validationExceptionEnum;
-	}
+    public ValidationExceptionEnum getValidationExceptionEnum() {
+        return validationExceptionEnum;
+    }
 
 }

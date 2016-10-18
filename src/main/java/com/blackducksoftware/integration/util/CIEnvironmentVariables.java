@@ -25,32 +25,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CIEnvironmentVariables {
-	public static final String BDS_CACERTS_OVERRIDE = "BDS_CACERTS_OVERRIDE";
+    public static final String BDS_CACERTS_OVERRIDE = "BDS_CACERTS_OVERRIDE";
 
-	private final Map<String, String> environmentVariables = new HashMap<String, String>();
+    private final Map<String, String> environmentVariables = new HashMap<String, String>();
 
-	public void putAll(final Map<String, String> map) {
-		environmentVariables.putAll(map);
-	}
+    public void putAll(final Map<String, String> map) {
+        environmentVariables.putAll(map);
+    }
 
-	public void put(final String key, final String value) {
-		environmentVariables.put(key, value);
-	}
+    public void put(final String key, final String value) {
+        environmentVariables.put(key, value);
+    }
 
-	public boolean containsKey(final String key) {
-		return environmentVariables.containsKey(key);
-	}
+    public boolean containsKey(final String key) {
+        return environmentVariables.containsKey(key);
+    }
 
-	public String getValue(final String key) {
-		return getValue(key, null);
-	}
+    public String getValue(final String key) {
+        return getValue(key, null);
+    }
 
-	public String getValue(final String key, final String defaultValue) {
-		String value = environmentVariables.get(key);
-		if (value == null && defaultValue != null) {
-			value = defaultValue;
-		}
-		return value;
-	}
+    public String getValue(final String key, final String defaultValue) {
+        String value = environmentVariables.get(key);
+        if (value == null && defaultValue != null) {
+            value = defaultValue;
+        }
+        return value;
+    }
 
 }

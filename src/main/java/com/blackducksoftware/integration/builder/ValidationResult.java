@@ -25,37 +25,39 @@ import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class ValidationResult {
-	private final ValidationResultEnum resultType;
-	private final String message;
-	private final Throwable throwable;
+    private final ValidationResultEnum resultType;
 
-	public ValidationResult(final ValidationResultEnum resultType, final String message) {
-		this.resultType = resultType;
-		this.message = message;
-		this.throwable = null;
-	}
+    private final String message;
 
-	public ValidationResult(final ValidationResultEnum resultType, final String message, final Throwable throwable) {
-		this.resultType = resultType;
-		this.message = message;
-		this.throwable = throwable;
-	}
+    private final Throwable throwable;
 
-	public ValidationResultEnum getResultType() {
-		return resultType;
-	}
+    public ValidationResult(final ValidationResultEnum resultType, final String message) {
+        this.resultType = resultType;
+        this.message = message;
+        this.throwable = null;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public ValidationResult(final ValidationResultEnum resultType, final String message, final Throwable throwable) {
+        this.resultType = resultType;
+        this.message = message;
+        this.throwable = throwable;
+    }
 
-	public Throwable getThrowable() {
-		return throwable;
-	}
+    public ValidationResultEnum getResultType() {
+        return resultType;
+    }
 
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
-	}
+    public String getMessage() {
+        return message;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
+    }
 
 }

@@ -34,188 +34,190 @@ import java.util.Vector;
 import org.apache.commons.lang3.StringUtils;
 
 public class ValidationResults<K, T> {
-	private T constructedObject;
-	private final Map<K, Map<ValidationResultEnum, List<ValidationResult>>> resultMap;
-	private final Set<ValidationResultEnum> status = EnumSet.noneOf(ValidationResultEnum.class);
+    private T constructedObject;
 
-	public ValidationResults() {
-		resultMap = new HashMap<>();
-	}
+    private final Map<K, Map<ValidationResultEnum, List<ValidationResult>>> resultMap;
 
-	public void addAllResults(final Map<K, List<ValidationResult>> results) {
-		for (final Entry<K, List<ValidationResult>> entry : results.entrySet()) {
-			for (final ValidationResult result : entry.getValue()) {
-				// This will prevent duplication
-				addResult(entry.getKey(), result);
-			}
-		}
-	}
+    private final Set<ValidationResultEnum> status = EnumSet.noneOf(ValidationResultEnum.class);
 
-	public void addResult(final K fieldKey, final ValidationResult result) {
-		final List<ValidationResult> resultList;
-		final Map<ValidationResultEnum, List<ValidationResult>> resultListMap;
-		final ValidationResultEnum resultType = result.getResultType();
-		if (resultMap.containsKey(fieldKey)) {
-			resultListMap = resultMap.get(fieldKey);
+    public ValidationResults() {
+        resultMap = new HashMap<>();
+    }
 
-		} else {
-			resultListMap = new LinkedHashMap<>();
-			resultMap.put(fieldKey, resultListMap);
-		}
+    public void addAllResults(final Map<K, List<ValidationResult>> results) {
+        for (final Entry<K, List<ValidationResult>> entry : results.entrySet()) {
+            for (final ValidationResult result : entry.getValue()) {
+                // This will prevent duplication
+                addResult(entry.getKey(), result);
+            }
+        }
+    }
 
-		if (resultListMap.containsKey(resultType)) {
-			resultList = resultListMap.get(result.getResultType());
-		} else {
-			resultList = new Vector<>();
-			resultListMap.put(resultType, resultList);
-		}
-		status.add(resultType);
+    public void addResult(final K fieldKey, final ValidationResult result) {
+        final List<ValidationResult> resultList;
+        final Map<ValidationResultEnum, List<ValidationResult>> resultListMap;
+        final ValidationResultEnum resultType = result.getResultType();
+        if (resultMap.containsKey(fieldKey)) {
+            resultListMap = resultMap.get(fieldKey);
 
-		addIfNotTheSame(resultList, result);
-	}
+        } else {
+            resultListMap = new LinkedHashMap<>();
+            resultMap.put(fieldKey, resultListMap);
+        }
 
-	private void addIfNotTheSame(final List<ValidationResult> list, final ValidationResult potentialResult) {
-		boolean found = false;
-		for (final ValidationResult result : list) {
-			if (result.getResultType() == potentialResult.getResultType()
-					&& StringUtils.trimToEmpty(result.getMessage()).equals(potentialResult.getMessage())) {
-				found = true;
-				break;
-			}
-		}
+        if (resultListMap.containsKey(resultType)) {
+            resultList = resultListMap.get(result.getResultType());
+        } else {
+            resultList = new Vector<>();
+            resultListMap.put(resultType, resultList);
+        }
+        status.add(resultType);
 
-		if (!found) {
-			list.add(potentialResult);
-		}
-	}
+        addIfNotTheSame(resultList, result);
+    }
 
-	public Map<K, List<ValidationResult>> getResultMap() {
-		final Map<K, List<ValidationResult>> map = new HashMap<>();
-		for (final K fieldKey : resultMap.keySet()) {
-			map.put(fieldKey, getResultList(fieldKey));
-		}
-		return map;
-	}
+    private void addIfNotTheSame(final List<ValidationResult> list, final ValidationResult potentialResult) {
+        boolean found = false;
+        for (final ValidationResult result : list) {
+            if (result.getResultType() == potentialResult.getResultType()
+                    && StringUtils.trimToEmpty(result.getMessage()).equals(potentialResult.getMessage())) {
+                found = true;
+                break;
+            }
+        }
 
-	public List<ValidationResult> getResultList(final K fieldKey) {
-		if (resultMap.containsKey(fieldKey)) {
-			final List<ValidationResult> resultList = new Vector<>();
-			final Map<ValidationResultEnum, List<ValidationResult>> itemList = resultMap.get(fieldKey);
-			for (final ValidationResultEnum key : itemList.keySet()) {
-				resultList.addAll(itemList.get(key));
-			}
+        if (!found) {
+            list.add(potentialResult);
+        }
+    }
 
-			return resultList;
-		} else {
-			return new Vector<>();
-		}
-	}
+    public Map<K, List<ValidationResult>> getResultMap() {
+        final Map<K, List<ValidationResult>> map = new HashMap<>();
+        for (final K fieldKey : resultMap.keySet()) {
+            map.put(fieldKey, getResultList(fieldKey));
+        }
+        return map;
+    }
 
-	public List<String> getResultList(final K fieldKey, final ValidationResultEnum resultEnum) {
-		final List<String> resultList = new ArrayList<>();
-		if (resultMap.containsKey(fieldKey)) {
-			final Map<ValidationResultEnum, List<ValidationResult>> listMap = resultMap.get(fieldKey);
-			if (listMap.containsKey(resultEnum)) {
-				final List<ValidationResult> itemList = listMap.get(resultEnum);
-				for (final ValidationResult result : itemList) {
-					resultList.add(result.getMessage());
-				}
-			}
-		}
-		return resultList;
-	}
+    public List<ValidationResult> getResultList(final K fieldKey) {
+        if (resultMap.containsKey(fieldKey)) {
+            final List<ValidationResult> resultList = new Vector<>();
+            final Map<ValidationResultEnum, List<ValidationResult>> itemList = resultMap.get(fieldKey);
+            for (final ValidationResultEnum key : itemList.keySet()) {
+                resultList.addAll(itemList.get(key));
+            }
 
-	public String getResultString(final K fieldKey, final ValidationResultEnum resultEnum) {
-		String resultString = "";
-		final List<String> resultList = getResultList(fieldKey, resultEnum);
-		if (!resultList.isEmpty()) {
-			resultString = StringUtils.join(resultList, "\n");
-		}
-		return resultString;
-	}
+            return resultList;
+        } else {
+            return new Vector<>();
+        }
+    }
 
-	public List<Throwable> getResultThrowables(final K fieldKey, final ValidationResultEnum resultEnum) {
-		final List<Throwable> throwables = new ArrayList<>();
+    public List<String> getResultList(final K fieldKey, final ValidationResultEnum resultEnum) {
+        final List<String> resultList = new ArrayList<>();
+        if (resultMap.containsKey(fieldKey)) {
+            final Map<ValidationResultEnum, List<ValidationResult>> listMap = resultMap.get(fieldKey);
+            if (listMap.containsKey(resultEnum)) {
+                final List<ValidationResult> itemList = listMap.get(resultEnum);
+                for (final ValidationResult result : itemList) {
+                    resultList.add(result.getMessage());
+                }
+            }
+        }
+        return resultList;
+    }
 
-		if (resultMap.containsKey(fieldKey)) {
-			final Map<ValidationResultEnum, List<ValidationResult>> listMap = resultMap.get(fieldKey);
-			if (listMap.containsKey(resultEnum)) {
-				final List<ValidationResult> itemList = listMap.get(resultEnum);
-				for (final ValidationResult result : itemList) {
-					if (result.getThrowable() != null) {
-						throwables.add(result.getThrowable());
-					}
-				}
-			}
-		}
-		return throwables;
-	}
+    public String getResultString(final K fieldKey, final ValidationResultEnum resultEnum) {
+        String resultString = "";
+        final List<String> resultList = getResultList(fieldKey, resultEnum);
+        if (!resultList.isEmpty()) {
+            resultString = StringUtils.join(resultList, "\n");
+        }
+        return resultString;
+    }
 
-	public List<String> getAllResultList(final ValidationResultEnum resultEnum) {
-		 		final List<String> resultList = new ArrayList<String>();
-		 
-		 		for (final Entry<K, Map<ValidationResultEnum, List<ValidationResult>>> entry : resultMap.entrySet()) {
-		 			if (entry.getValue().containsKey(resultEnum)) {
-		 				for (final ValidationResult result : entry.getValue().get(resultEnum)) {
-		 					resultList.add(result.getMessage());
-		 				}
-		 			}
-		 		}
-		 		return resultList;
-		 	}
-		 
-		 	public String getAllResultString(final ValidationResultEnum resultEnum) {
-		 		String resultString = "";
-	
-		 		final List<String> resultList = getAllResultList(resultEnum);
-		 		if (!resultList.isEmpty()) {
-		 			resultString = StringUtils.join(resultList, "\n");
-		 		}
-		 		return resultString;
-		 	}
-		 
-		 public T getConstructedObject() {
-		return constructedObject;
-	}
+    public List<Throwable> getResultThrowables(final K fieldKey, final ValidationResultEnum resultEnum) {
+        final List<Throwable> throwables = new ArrayList<>();
 
-	public void setConstructedObject(final T constructedObject) {
-		this.constructedObject = constructedObject;
-	}
+        if (resultMap.containsKey(fieldKey)) {
+            final Map<ValidationResultEnum, List<ValidationResult>> listMap = resultMap.get(fieldKey);
+            if (listMap.containsKey(resultEnum)) {
+                final List<ValidationResult> itemList = listMap.get(resultEnum);
+                for (final ValidationResult result : itemList) {
+                    if (result.getThrowable() != null) {
+                        throwables.add(result.getThrowable());
+                    }
+                }
+            }
+        }
+        return throwables;
+    }
 
-	public Set<ValidationResultEnum> getValidationStatus() {
-		return status;
-	}
+    public List<String> getAllResultList(final ValidationResultEnum resultEnum) {
+        final List<String> resultList = new ArrayList<String>();
 
-	public boolean hasErrors(final K fieldKey) {
-		if (resultMap.containsKey(fieldKey)) {
-			return resultMap.get(fieldKey).containsKey(ValidationResultEnum.ERROR);
-		} else {
-			return false;
-		}
-	}
+        for (final Entry<K, Map<ValidationResultEnum, List<ValidationResult>>> entry : resultMap.entrySet()) {
+            if (entry.getValue().containsKey(resultEnum)) {
+                for (final ValidationResult result : entry.getValue().get(resultEnum)) {
+                    resultList.add(result.getMessage());
+                }
+            }
+        }
+        return resultList;
+    }
 
-	public boolean hasWarnings(final K fieldKey) {
-		if (resultMap.containsKey(fieldKey)) {
-			return resultMap.get(fieldKey).containsKey(ValidationResultEnum.WARN);
-		} else {
-			return false;
-		}
-	}
+    public String getAllResultString(final ValidationResultEnum resultEnum) {
+        String resultString = "";
 
-	public boolean hasErrors() {
-		return status.contains(ValidationResultEnum.ERROR);
-	}
+        final List<String> resultList = getAllResultList(resultEnum);
+        if (!resultList.isEmpty()) {
+            resultString = StringUtils.join(resultList, "\n");
+        }
+        return resultString;
+    }
 
-	public boolean hasWarnings() {
-		return status.contains(ValidationResultEnum.WARN);
-	}
+    public T getConstructedObject() {
+        return constructedObject;
+    }
 
-	public boolean isSuccess() {
-		return (status.size() == 1 && status.contains(ValidationResultEnum.OK));
-	}
+    public void setConstructedObject(final T constructedObject) {
+        this.constructedObject = constructedObject;
+    }
 
-	public boolean isEmpty() {
-		return status.isEmpty();
-	}
+    public Set<ValidationResultEnum> getValidationStatus() {
+        return status;
+    }
+
+    public boolean hasErrors(final K fieldKey) {
+        if (resultMap.containsKey(fieldKey)) {
+            return resultMap.get(fieldKey).containsKey(ValidationResultEnum.ERROR);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean hasWarnings(final K fieldKey) {
+        if (resultMap.containsKey(fieldKey)) {
+            return resultMap.get(fieldKey).containsKey(ValidationResultEnum.WARN);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean hasErrors() {
+        return status.contains(ValidationResultEnum.ERROR);
+    }
+
+    public boolean hasWarnings() {
+        return status.contains(ValidationResultEnum.WARN);
+    }
+
+    public boolean isSuccess() {
+        return (status.size() == 1 && status.contains(ValidationResultEnum.OK));
+    }
+
+    public boolean isEmpty() {
+        return status.isEmpty();
+    }
 
 }

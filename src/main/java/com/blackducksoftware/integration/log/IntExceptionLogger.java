@@ -30,55 +30,55 @@ import com.blackducksoftware.integration.exception.ValidationExceptionEnum;
  * appropriate ValidationMessageEnum.
  */
 public class IntExceptionLogger extends IntLogger {
-	public static final IntLogger LOGGER = new IntExceptionLogger();
+    public static final IntLogger LOGGER = new IntExceptionLogger();
 
-	@Override
-	public void info(final String txt) {
-	}
+    @Override
+    public void info(final String txt) {
+    }
 
-	@Override
-	public void error(final Throwable t) {
-		throw new ValidationException(ValidationExceptionEnum.ERROR, t);
-	}
+    @Override
+    public void error(final Throwable t) {
+        throw new ValidationException(ValidationExceptionEnum.ERROR, t);
+    }
 
-	@Override
-	public void error(final String txt, final Throwable t) {
-		throw new ValidationException(ValidationExceptionEnum.ERROR, txt, t);
-	}
+    @Override
+    public void error(final String txt, final Throwable t) {
+        throw new ValidationException(ValidationExceptionEnum.ERROR, txt, t);
+    }
 
-	@Override
-	public void error(final String txt) {
-		throw new ValidationException(ValidationExceptionEnum.ERROR, txt);
-	}
+    @Override
+    public void error(final String txt) {
+        throw new ValidationException(ValidationExceptionEnum.ERROR, txt);
+    }
 
-	@Override
-	public void warn(final String txt) {
-		throw new ValidationException(ValidationExceptionEnum.WARN, txt);
-	}
+    @Override
+    public void warn(final String txt) {
+        throw new ValidationException(ValidationExceptionEnum.WARN, txt);
+    }
 
-	@Override
-	public void trace(final String txt) {
-	}
+    @Override
+    public void trace(final String txt) {
+    }
 
-	@Override
-	public void trace(final String txt, final Throwable t) {
-	}
+    @Override
+    public void trace(final String txt, final Throwable t) {
+    }
 
-	@Override
-	public void debug(final String txt) {
-	}
+    @Override
+    public void debug(final String txt) {
+    }
 
-	@Override
-	public void debug(final String txt, final Throwable t) {
-	}
+    @Override
+    public void debug(final String txt, final Throwable t) {
+    }
 
-	@Override
-	public void setLogLevel(final LogLevel logLevel) {
-	}
+    @Override
+    public void setLogLevel(final LogLevel logLevel) {
+    }
 
-	@Override
-	public LogLevel getLogLevel() {
-		return null;
-	}
+    @Override
+    public LogLevel getLogLevel() {
+        return null;
+    }
 
 }

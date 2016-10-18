@@ -22,6 +22,6 @@
 package com.blackducksoftware.integration.exception;
 
 public enum ValidationExceptionEnum {
-	ERROR, WARN
+    ERROR, WARN
 
 }

@@ -26,16 +26,16 @@ import javax.crypto.Cipher;
 import com.blackducksoftware.integration.exception.EncryptionException;
 
 public class PasswordEncrypter {
-	public static String encrypt(final String password) throws IllegalArgumentException, EncryptionException {
-		final EncryptionUtils encryptionUtils = new EncryptionUtils();
+    public static String encrypt(final String password) throws IllegalArgumentException, EncryptionException {
+        final EncryptionUtils encryptionUtils = new EncryptionUtils();
 
-		final String encryptedPassword = encryptionUtils.alterString(password, null, Cipher.ENCRYPT_MODE);
+        final String encryptedPassword = encryptionUtils.alterString(password, null, Cipher.ENCRYPT_MODE);
 
-		if (encryptedPassword == null) {
-			throw new EncryptionException("The encrypted password is null");
-		}
+        if (encryptedPassword == null) {
+            throw new EncryptionException("The encrypted password is null");
+        }
 
-		return encryptedPassword;
-	}
+        return encryptedPassword;
+    }
 
 }

@@ -24,35 +24,35 @@ package com.blackducksoftware.integration.log;
 import com.blackducksoftware.integration.util.CIEnvironmentVariables;
 
 public abstract class IntLogger {
-	public abstract void info(String txt);
+    public abstract void info(String txt);
 
-	public abstract void error(Throwable t);
+    public abstract void error(Throwable t);
 
-	public abstract void error(String txt, Throwable t);
+    public abstract void error(String txt, Throwable t);
 
-	public abstract void error(String txt);
+    public abstract void error(String txt);
 
-	public abstract void warn(String txt);
+    public abstract void warn(String txt);
 
-	public abstract void trace(String txt);
+    public abstract void trace(String txt);
 
-	public abstract void trace(String txt, Throwable t);
+    public abstract void trace(String txt, Throwable t);
 
-	public abstract void debug(String txt);
+    public abstract void debug(String txt);
 
-	public abstract void debug(String txt, Throwable t);
+    public abstract void debug(String txt, Throwable t);
 
-	public abstract void setLogLevel(LogLevel logLevel);
+    public abstract void setLogLevel(LogLevel logLevel);
 
-	public void setLogLevel(final CIEnvironmentVariables variables) {
-		final String logLevel = variables.getValue("HUB_LOG_LEVEL", "INFO");
-		try {
-			setLogLevel(LogLevel.valueOf(logLevel.toUpperCase()));
-		} catch (final IllegalArgumentException e) {
-			setLogLevel(LogLevel.INFO);
-		}
-	}
+    public void setLogLevel(final CIEnvironmentVariables variables) {
+        final String logLevel = variables.getValue("HUB_LOG_LEVEL", "INFO");
+        try {
+            setLogLevel(LogLevel.valueOf(logLevel.toUpperCase()));
+        } catch (final IllegalArgumentException e) {
+            setLogLevel(LogLevel.INFO);
+        }
+    }
 
-	public abstract LogLevel getLogLevel();
+    public abstract LogLevel getLogLevel();
 
 }
