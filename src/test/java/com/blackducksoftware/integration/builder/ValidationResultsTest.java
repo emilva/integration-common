@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -389,5 +390,17 @@ public class ValidationResultsTest {
         results.addResult(KEY_0, new ValidationResult(ValidationResultEnum.WARN, errMsg));
 
         assertTrue(results.hasWarnings(KEY_0));
+    }
+
+    @Test
+    public void testStringOutput() {
+        String expected = "test Error [java.io.IOException: Test exception]";
+
+        final ValidationResults<String, String> results = new ValidationResults<>();
+        final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "test Error", new IOException("Test exception"));
+        results.addResult("test", result);
+
+        assertEquals(expected, results.getAllResultString(ValidationResultEnum.ERROR));
+
     }
 }

@@ -120,7 +120,12 @@ public class ValidationResults<K, T> {
             if (listMap.containsKey(resultEnum)) {
                 final List<ValidationResult> itemList = listMap.get(resultEnum);
                 for (final ValidationResult result : itemList) {
-                    resultList.add(result.getMessage());
+                    if (result.getThrowable() != null) {
+                        String resultMessage = String.format("%s [%s]", result.getMessage(), result.getThrowable().toString());
+                        resultList.add(resultMessage);
+                    } else {
+                        resultList.add(result.getMessage());
+                    }
                 }
             }
         }
@@ -154,12 +159,17 @@ public class ValidationResults<K, T> {
     }
 
     public List<String> getAllResultList(final ValidationResultEnum resultEnum) {
-        final List<String> resultList = new ArrayList<String>();
+        final List<String> resultList = new ArrayList<>();
 
         for (final Entry<K, Map<ValidationResultEnum, List<ValidationResult>>> entry : resultMap.entrySet()) {
             if (entry.getValue().containsKey(resultEnum)) {
                 for (final ValidationResult result : entry.getValue().get(resultEnum)) {
-                    resultList.add(result.getMessage());
+                    if (result.getThrowable() != null) {
+                        String resultMessage = String.format("%s [%s]", result.getMessage(), result.getThrowable().toString());
+                        resultList.add(resultMessage);
+                    } else {
+                        resultList.add(result.getMessage());
+                    }
                 }
             }
         }
