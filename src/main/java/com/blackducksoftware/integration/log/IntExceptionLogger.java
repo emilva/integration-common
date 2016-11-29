@@ -33,6 +33,10 @@ public class IntExceptionLogger extends IntLogger {
     public static final IntLogger LOGGER = new IntExceptionLogger();
 
     @Override
+    public void alwaysLog(final String txt) {
+    }
+
+    @Override
     public void info(final String txt) {
     }
 

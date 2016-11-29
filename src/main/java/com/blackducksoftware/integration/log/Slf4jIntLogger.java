@@ -31,6 +31,11 @@ public class Slf4jIntLogger extends IntLogger {
     }
 
     @Override
+    public void alwaysLog(final String txt) {
+        logger.error(txt);
+    }
+
+    @Override
     public void info(final String txt) {
         logger.info(txt);
     }
