@@ -79,6 +79,12 @@ public class TestLogger extends IntLogger {
     }
 
     @Override
+    public void alwaysLog(final String txt) {
+        System.out.println(String.format("always log: %s", txt));
+        outputList.add(txt);
+    }
+
+    @Override
     public void debug(final String txt) {
         System.out.println(String.format("debug: %s", txt));
         outputList.add(txt);

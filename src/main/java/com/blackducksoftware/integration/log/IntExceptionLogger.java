@@ -21,63 +21,59 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.log;
 
-import org.slf4j.Logger;
+import com.blackducksoftware.integration.exception.ValidationException;
+import com.blackducksoftware.integration.exception.ValidationExceptionEnum;
 
-public class Slf4jIntLogger extends IntLogger {
-    private final Logger logger;
-
-    public Slf4jIntLogger(final Logger logger) {
-        this.logger = logger;
-    }
+/**
+ * This logger will only have implementation for the error() and warn()
+ * invocations, which should all simply throw a ValidationException with the
+ * appropriate ValidationMessageEnum.
+ */
+public class IntExceptionLogger extends IntLogger {
+    public static final IntLogger LOGGER = new IntExceptionLogger();
 
     @Override
     public void alwaysLog(final String txt) {
-        logger.error(txt);
     }
 
     @Override
     public void info(final String txt) {
-        logger.info(txt);
     }
 
     @Override
     public void error(final Throwable t) {
-        logger.error("Throwable: " + t.getMessage(), t);
+        throw new ValidationException(ValidationExceptionEnum.ERROR, t);
     }
 
     @Override
     public void error(final String txt, final Throwable t) {
-        logger.error(txt, t);
+        throw new ValidationException(ValidationExceptionEnum.ERROR, txt, t);
     }
 
     @Override
     public void error(final String txt) {
-        logger.error(txt);
+        throw new ValidationException(ValidationExceptionEnum.ERROR, txt);
     }
 
     @Override
     public void warn(final String txt) {
-        logger.warn(txt);
+        throw new ValidationException(ValidationExceptionEnum.WARN, txt);
     }
 
     @Override
     public void trace(final String txt) {
-        logger.trace(txt);
     }
 
     @Override
     public void trace(final String txt, final Throwable t) {
-        logger.trace(txt, t);
     }
 
     @Override
     public void debug(final String txt) {
-        logger.debug(txt);
     }
 
     @Override
     public void debug(final String txt, final Throwable t) {
-        logger.debug(txt, t);
     }
 
     @Override

@@ -31,9 +31,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 public class IntBufferedLogger extends IntLogger {
-    private final Map<LogLevel, List<String>> outputMap = new HashMap<LogLevel, List<String>>();
+    private final Map<LogLevel, List<String>> outputMap = new HashMap<>();
 
     public IntBufferedLogger() {
+        outputMap.put(LogLevel.OFF, new ArrayList<String>());
         outputMap.put(LogLevel.ERROR, new ArrayList<String>());
         outputMap.put(LogLevel.WARN, new ArrayList<String>());
         outputMap.put(LogLevel.INFO, new ArrayList<String>());
@@ -46,6 +47,7 @@ public class IntBufferedLogger extends IntLogger {
     }
 
     public void resetAllLogs() {
+        outputMap.put(LogLevel.OFF, new ArrayList<String>());
         outputMap.put(LogLevel.ERROR, new ArrayList<String>());
         outputMap.put(LogLevel.WARN, new ArrayList<String>());
         outputMap.put(LogLevel.INFO, new ArrayList<String>());
@@ -65,6 +67,11 @@ public class IntBufferedLogger extends IntLogger {
         final StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    @Override
+    public void alwaysLog(final String txt) {
+        outputMap.get(LogLevel.OFF).add(txt);
     }
 
     @Override
