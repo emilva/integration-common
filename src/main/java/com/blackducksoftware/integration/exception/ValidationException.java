@@ -21,28 +21,34 @@
  *******************************************************************************/
 package com.blackducksoftware.integration.exception;
 
-public class ValidationException extends RuntimeException {
+public class ValidationException extends IntegrationException {
     private static final long serialVersionUID = 9001308081326471943L;
 
     private final ValidationExceptionEnum validationExceptionEnum;
 
-    public ValidationException(final ValidationExceptionEnum validationExceptionEnum) {
+    public ValidationException(ValidationExceptionEnum validationExceptionEnum) {
+        super();
         this.validationExceptionEnum = validationExceptionEnum;
     }
 
-    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final String message) {
+    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, String message, Throwable cause, boolean enableSuppression,
+            boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+        this.validationExceptionEnum = validationExceptionEnum;
+    }
+
+    public ValidationException(ValidationExceptionEnum validationExceptionEnum, String message, Throwable cause) {
+        super(message, cause);
+        this.validationExceptionEnum = validationExceptionEnum;
+    }
+
+    public ValidationException(ValidationExceptionEnum validationExceptionEnum, String message) {
         super(message);
         this.validationExceptionEnum = validationExceptionEnum;
     }
 
-    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final Throwable cause) {
+    public ValidationException(ValidationExceptionEnum validationExceptionEnum, Throwable cause) {
         super(cause);
-        this.validationExceptionEnum = validationExceptionEnum;
-    }
-
-    public ValidationException(final ValidationExceptionEnum validationExceptionEnum, final String message,
-            final Throwable cause) {
-        super(message, cause);
         this.validationExceptionEnum = validationExceptionEnum;
     }
 

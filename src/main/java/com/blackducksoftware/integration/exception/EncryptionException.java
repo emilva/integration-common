@@ -1,25 +1,23 @@
 package com.blackducksoftware.integration.exception;
 
-public class EncryptionException extends Exception {
-    private static final long serialVersionUID = -4763293329821557087L;
-
+public class EncryptionException extends IntegrationException {
     public EncryptionException() {
+        super();
     }
 
-    public EncryptionException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace) {
+    public EncryptionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public EncryptionException(final String message, final Throwable cause) {
+    public EncryptionException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public EncryptionException(final String message) {
+    public EncryptionException(String message) {
         super(message);
     }
 
-    public EncryptionException(final Throwable cause) {
+    public EncryptionException(Throwable cause) {
         super(cause);
     }
 
