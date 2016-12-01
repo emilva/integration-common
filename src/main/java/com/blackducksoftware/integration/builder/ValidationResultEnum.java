@@ -22,5 +22,5 @@
 package com.blackducksoftware.integration.builder;
 
 public enum ValidationResultEnum {
-    ERROR, OK, WARN;
+    ERROR, WARN;
 }

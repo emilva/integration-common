@@ -57,7 +57,7 @@ public class ValidationResult {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
+        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.SIMPLE_STYLE);
     }
 
 }
