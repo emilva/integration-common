@@ -64,7 +64,6 @@ public class ValidationResultsTest {
 
     @Test
     public void testValidationResultConstructor() {
-
         final Throwable throwable = new RuntimeException();
         final ValidationResult result = new ValidationResult(ValidationResultEnum.OK, TEST_MESSAGE_PREFIX, throwable);
 
@@ -394,13 +393,18 @@ public class ValidationResultsTest {
 
     @Test
     public void testStringOutput() {
-        String expected = "test Error [java.io.IOException: Test exception]";
+        final String expected = "test Error [java.io.IOException: Test exception]";
 
         final ValidationResults<String, String> results = new ValidationResults<>();
         final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "test Error", new IOException("Test exception"));
         results.addResult("test", result);
+        final ValidationResult result2 = new ValidationResult(ValidationResultEnum.ERROR, "test Error 2", new IOException("Test exception 2"));
 
+        results.addResult("test", result);
+        results.addResult("test", result);
+        results.addResult("test", result2);
+        results.addResult("test2", result2);
         assertEquals(expected, results.getAllResultString(ValidationResultEnum.ERROR));
-
     }
+
 }
