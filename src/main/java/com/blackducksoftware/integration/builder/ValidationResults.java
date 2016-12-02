@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.builder;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -38,8 +37,8 @@ public class ValidationResults<K, T> {
 
     private final Set<ValidationResultEnum> status = EnumSet.noneOf(ValidationResultEnum.class);
 
-    public void addAllResults(final Map<K, List<ValidationResult>> results) {
-        for (final Entry<K, List<ValidationResult>> entry : results.entrySet()) {
+    public void addAllResults(final Map<K, Set<ValidationResult>> results) {
+        for (final Entry<K, Set<ValidationResult>> entry : results.entrySet()) {
             for (final ValidationResult result : entry.getValue()) {
                 // This will prevent duplication
                 addResult(entry.getKey(), result);
@@ -47,9 +46,27 @@ public class ValidationResults<K, T> {
         }
     }
 
+    public void addAllResultsStrings(final Map<K, Set<String>> results, Set<ValidationResultEnum> newStatusSet) {
+        for (final Entry<K, Set<String>> entry : results.entrySet()) {
+            for (final String result : entry.getValue()) {
+                // This will prevent duplication
+                addResult(entry.getKey(), result);
+            }
+        }
+        status.addAll(newStatusSet);
+    }
+
     public void addResult(final K fieldKey, final ValidationResult result) {
         String newResult = result.toString().trim();
+        addResult(fieldKey, newResult, result.getResultType());
+    }
 
+    public void addResult(final K fieldKey, final String newResult, ValidationResultEnum newStatus) {
+        addResult(fieldKey, newResult);
+        status.add(newStatus);
+    }
+
+    private void addResult(final K fieldKey, final String newResult) {
         final Set<String> resultStrings;
         if (resultMap.containsKey(fieldKey)) {
             resultStrings = resultMap.get(fieldKey);
@@ -63,7 +80,6 @@ public class ValidationResults<K, T> {
             newResults.add(newResult);
             resultMap.put(fieldKey, newResults);
         }
-        status.add(result.getResultType());
     }
 
     public String getResultString(final K fieldKey) {
@@ -86,6 +102,10 @@ public class ValidationResults<K, T> {
 
     public T getConstructedObject() {
         return constructedObject;
+    }
+
+    public Map<K, Set<String>> getResultMap() {
+        return resultMap;
     }
 
     public void setConstructedObject(final T constructedObject) {
