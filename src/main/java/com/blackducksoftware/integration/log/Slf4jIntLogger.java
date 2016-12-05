@@ -86,7 +86,19 @@ public class Slf4jIntLogger extends IntLogger {
 
     @Override
     public LogLevel getLogLevel() {
-        return null;
+        if (logger.isTraceEnabled()) {
+            return LogLevel.TRACE;
+        } else if (logger.isDebugEnabled()) {
+            return LogLevel.DEBUG;
+        } else if (logger.isInfoEnabled()) {
+            return LogLevel.INFO;
+        } else if (logger.isWarnEnabled()) {
+            return LogLevel.WARN;
+        } else if (logger.isErrorEnabled()) {
+            return LogLevel.ERROR;
+        } else {
+            return LogLevel.OFF;
+        }
     }
 
 }

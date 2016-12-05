@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.log;
 import com.blackducksoftware.integration.util.CIEnvironmentVariables;
 
 public abstract class IntLogger {
-
     public abstract void alwaysLog(String txt);
 
     public abstract void info(String txt);
