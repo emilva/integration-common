@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.builder;
+package com.blackducksoftware.integration.validator;
 
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -30,8 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class ValidationResults<K, T> {
-    private T constructedObject;
+public class ValidationResults<K> {
 
     private final Map<K, Set<String>> resultMap = new LinkedHashMap<>();
 
@@ -57,7 +56,7 @@ public class ValidationResults<K, T> {
     }
 
     public void addResult(final K fieldKey, final ValidationResult result) {
-        String newResult = result.toString().trim();
+        final String newResult = result.toString().trim();
         addResult(fieldKey, newResult, result.getResultType());
     }
 
@@ -76,21 +75,21 @@ public class ValidationResults<K, T> {
                 resultMap.put(fieldKey, resultStrings);
             }
         } else {
-            Set<String> newResults = new LinkedHashSet<>();
+            final Set<String> newResults = new LinkedHashSet<>();
             newResults.add(newResult);
             resultMap.put(fieldKey, newResults);
         }
     }
 
     public String getResultString(final K fieldKey) {
-        Set<String> results = resultMap.get(fieldKey);
+        final Set<String> results = resultMap.get(fieldKey);
         return StringUtils.join(results, System.lineSeparator());
     }
 
     public String getAllResultString() {
-        Set<String> results = new LinkedHashSet<>();
-        for (Entry<K, Set<String>> result : resultMap.entrySet()) {
-            String fieldResults = StringUtils.join(result.getValue(), System.lineSeparator());
+        final Set<String> results = new LinkedHashSet<>();
+        for (final Entry<K, Set<String>> result : resultMap.entrySet()) {
+            final String fieldResults = StringUtils.join(result.getValue(), System.lineSeparator());
             results.add(result.getKey() + " =" + System.lineSeparator() + fieldResults);
         }
         String resultString = "";
@@ -100,16 +99,8 @@ public class ValidationResults<K, T> {
         return resultString;
     }
 
-    public T getConstructedObject() {
-        return constructedObject;
-    }
-
     public Map<K, Set<String>> getResultMap() {
         return resultMap;
-    }
-
-    public void setConstructedObject(final T constructedObject) {
-        this.constructedObject = constructedObject;
     }
 
     public Set<ValidationResultEnum> getValidationStatus() {

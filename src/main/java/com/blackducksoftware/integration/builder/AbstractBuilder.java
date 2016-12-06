@@ -23,27 +23,14 @@ package com.blackducksoftware.integration.builder;
 
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class AbstractBuilder<Key, Type> {
+public abstract class AbstractBuilder<Type> {
     private final boolean shouldUseDefaultValues;
 
     public AbstractBuilder(final boolean shouldUseDefaultValues) {
         this.shouldUseDefaultValues = shouldUseDefaultValues;
     }
 
-    public Type build() throws IllegalStateException {
-        final ValidationResults<Key, Type> results = buildResults();
-        if (results.isSuccess()) {
-            return results.getConstructedObject();
-        } else {
-            String exceptionMessage = "Invalid Configuration: ";
-            exceptionMessage += results.getAllResultString();
-            throw new IllegalStateException(exceptionMessage);
-        }
-    }
-
-    public abstract ValidationResults<Key, Type> buildResults();
-
-    public abstract ValidationResults<Key, Type> assertValid();
+    public abstract Type build() throws IllegalStateException;
 
     protected int stringToInteger(final String integer) throws IllegalArgumentException {
         final String integerString = StringUtils.trimToNull(integer);
@@ -61,5 +48,4 @@ public abstract class AbstractBuilder<Key, Type> {
     public boolean shouldUseDefaultValues() {
         return shouldUseDefaultValues;
     }
-
 }
