@@ -59,5 +59,4 @@ public class ValidationResult {
     public String toString() {
         return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.SIMPLE_STYLE);
     }
-
 }
