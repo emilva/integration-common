@@ -38,6 +38,9 @@ public abstract class AbstractBuilder<Type> {
     public abstract Type buildObject();
 
     public Type build() throws IllegalStateException {
+        // Create the validator at this time because it is guaranteed that the
+        // builder has all of the properties that will be used to construct the object.
+        // Therefore the properties in the builder can be used to construct the validator object.
         final AbstractValidator validator = createValidator();
         final ValidationResults results = validator.assertValid();
         if (results.isSuccess()) {
