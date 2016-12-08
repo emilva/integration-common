@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.builder;
+package com.blackducksoftware.integration.validator;
 
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -30,15 +30,14 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class ValidationResults<K, T> {
-    private T constructedObject;
+public class ValidationResults {
 
-    private final Map<K, Set<String>> resultMap = new LinkedHashMap<>();
+    private final Map<Object, Set<String>> resultMap = new LinkedHashMap<>();
 
     private final Set<ValidationResultEnum> status = EnumSet.noneOf(ValidationResultEnum.class);
 
-    public void addAllResults(final Map<K, Set<ValidationResult>> results) {
-        for (final Entry<K, Set<ValidationResult>> entry : results.entrySet()) {
+    public void addAllResults(final Map<Object, Set<ValidationResult>> results) {
+        for (final Entry<Object, Set<ValidationResult>> entry : results.entrySet()) {
             for (final ValidationResult result : entry.getValue()) {
                 // This will prevent duplication
                 addResult(entry.getKey(), result);
@@ -46,8 +45,8 @@ public class ValidationResults<K, T> {
         }
     }
 
-    public void addAllResultsStrings(final Map<K, Set<String>> results, Set<ValidationResultEnum> newStatusSet) {
-        for (final Entry<K, Set<String>> entry : results.entrySet()) {
+    public void addAllResultsStrings(final Map<Object, Set<String>> results, Set<ValidationResultEnum> newStatusSet) {
+        for (final Entry<Object, Set<String>> entry : results.entrySet()) {
             for (final String result : entry.getValue()) {
                 // This will prevent duplication
                 addResult(entry.getKey(), result);
@@ -56,17 +55,17 @@ public class ValidationResults<K, T> {
         status.addAll(newStatusSet);
     }
 
-    public void addResult(final K fieldKey, final ValidationResult result) {
-        String newResult = result.toString().trim();
+    public void addResult(final Object fieldKey, final ValidationResult result) {
+        final String newResult = result.toString().trim();
         addResult(fieldKey, newResult, result.getResultType());
     }
 
-    public void addResult(final K fieldKey, final String newResult, ValidationResultEnum newStatus) {
+    public void addResult(final Object fieldKey, final String newResult, ValidationResultEnum newStatus) {
         addResult(fieldKey, newResult);
         status.add(newStatus);
     }
 
-    private void addResult(final K fieldKey, final String newResult) {
+    private void addResult(final Object fieldKey, final String newResult) {
         final Set<String> resultStrings;
         if (resultMap.containsKey(fieldKey)) {
             resultStrings = resultMap.get(fieldKey);
@@ -76,21 +75,21 @@ public class ValidationResults<K, T> {
                 resultMap.put(fieldKey, resultStrings);
             }
         } else {
-            Set<String> newResults = new LinkedHashSet<>();
+            final Set<String> newResults = new LinkedHashSet<>();
             newResults.add(newResult);
             resultMap.put(fieldKey, newResults);
         }
     }
 
-    public String getResultString(final K fieldKey) {
-        Set<String> results = resultMap.get(fieldKey);
+    public String getResultString(final Object fieldKey) {
+        final Set<String> results = resultMap.get(fieldKey);
         return StringUtils.join(results, System.lineSeparator());
     }
 
     public String getAllResultString() {
-        Set<String> results = new LinkedHashSet<>();
-        for (Entry<K, Set<String>> result : resultMap.entrySet()) {
-            String fieldResults = StringUtils.join(result.getValue(), System.lineSeparator());
+        final Set<String> results = new LinkedHashSet<>();
+        for (final Entry<Object, Set<String>> result : resultMap.entrySet()) {
+            final String fieldResults = StringUtils.join(result.getValue(), System.lineSeparator());
             results.add(result.getKey() + " =" + System.lineSeparator() + fieldResults);
         }
         String resultString = "";
@@ -100,16 +99,8 @@ public class ValidationResults<K, T> {
         return resultString;
     }
 
-    public T getConstructedObject() {
-        return constructedObject;
-    }
-
-    public Map<K, Set<String>> getResultMap() {
+    public Map<Object, Set<String>> getResultMap() {
         return resultMap;
-    }
-
-    public void setConstructedObject(final T constructedObject) {
-        this.constructedObject = constructedObject;
     }
 
     public Set<ValidationResultEnum> getValidationStatus() {

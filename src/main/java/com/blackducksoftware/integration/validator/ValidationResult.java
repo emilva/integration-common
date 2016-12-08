@@ -19,7 +19,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.builder;
+package com.blackducksoftware.integration.validator;
 
 import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -57,11 +57,6 @@ public class ValidationResult {
 
     @Override
     public String toString() {
-        final ReflectionToStringBuilder reflectionToStringBuilder = new ReflectionToStringBuilder(this, RecursiveToStringStyle.SIMPLE_STYLE);
-        if (throwable == null) {
-            reflectionToStringBuilder.setExcludeFieldNames("throwable");
-        }
-        return reflectionToStringBuilder.toString();
+        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.SIMPLE_STYLE);
     }
-
 }

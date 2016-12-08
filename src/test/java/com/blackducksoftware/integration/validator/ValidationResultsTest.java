@@ -19,12 +19,11 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.builder;
+package com.blackducksoftware.integration.validator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -36,6 +35,10 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import com.blackducksoftware.integration.validator.ValidationResult;
+import com.blackducksoftware.integration.validator.ValidationResultEnum;
+import com.blackducksoftware.integration.validator.ValidationResults;
+
 public class ValidationResultsTest {
     private static final String KEY_PREFIX = "key-";
 
@@ -45,8 +48,8 @@ public class ValidationResultsTest {
 
     private static final String KEY_0 = "key-0";
 
-    private ValidationResults<String, String> createTestData(final List<ValidationResultEnum> resultTypeList) {
-        final ValidationResults<String, String> results = new ValidationResults<>();
+    private ValidationResults createTestData(final List<ValidationResultEnum> resultTypeList) {
+        final ValidationResults results = new ValidationResults();
         final int count = resultTypeList.size();
         for (int index = 0; index < count; index++) {
             final String key = KEY_PREFIX + index;
@@ -61,7 +64,6 @@ public class ValidationResultsTest {
 
     @Test
     public void testValidationResultConstructor() {
-
         final Throwable throwable = new RuntimeException();
         final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, TEST_MESSAGE_PREFIX, throwable);
 
@@ -73,7 +75,7 @@ public class ValidationResultsTest {
 
     @Test
     public void testValidationResultsConstructor() {
-        final ValidationResults<Object, Object> result = new ValidationResults<>();
+        final ValidationResults result = new ValidationResults();
         assertNotNull(result);
         assertTrue(result.isEmpty());
         assertTrue(result.isSuccess());
@@ -81,12 +83,11 @@ public class ValidationResultsTest {
 
     @Test
     public void testAddResult() {
-
         final List<ValidationResultEnum> items = new ArrayList<>();
         items.add(ValidationResultEnum.WARN);
         items.add(ValidationResultEnum.ERROR);
 
-        final ValidationResults<String, String> results = createTestData(items);
+        final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
         assertFalse(results.isEmpty());
@@ -102,7 +103,7 @@ public class ValidationResultsTest {
         items.add(ValidationResultEnum.WARN);
         items.add(ValidationResultEnum.WARN);
 
-        final ValidationResults<String, String> results = createTestData(items);
+        final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
         assertFalse(results.isEmpty());
@@ -117,7 +118,7 @@ public class ValidationResultsTest {
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.ERROR);
 
-        final ValidationResults<String, String> results = createTestData(items);
+        final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
         assertFalse(results.isEmpty());
@@ -131,7 +132,7 @@ public class ValidationResultsTest {
         final List<ValidationResultEnum> items = new ArrayList<>();
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.WARN);
-        final ValidationResults<String, String> results = createTestData(items);
+        final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
         final String anotherMsg = "Test ERROR Message";
@@ -147,13 +148,12 @@ public class ValidationResultsTest {
 
     @Test
     public void testGetResultStringEnumInvalidKey() {
-
         final List<ValidationResultEnum> items = new ArrayList<>();
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.WARN);
         items.add(ValidationResultEnum.ERROR);
 
-        final ValidationResults<String, String> results = createTestData(items);
+        final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
         final String message = results.getResultString("key does not exist");
@@ -163,32 +163,25 @@ public class ValidationResultsTest {
 
     @Test
     public void testGetConstructedObject() {
-
         final List<ValidationResultEnum> items = new ArrayList<>();
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.WARN);
         items.add(ValidationResultEnum.ERROR);
 
-        final ValidationResults<String, String> results = createTestData(items);
+        final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
-        assertNull(results.getConstructedObject());
-        final String testObj = "Test Object";
-        results.setConstructedObject(testObj);
-
-        assertEquals(results.getConstructedObject(), testObj);
     }
 
     @Test
     public void testValidationStatus() {
-
         List<ValidationResultEnum> items = new ArrayList<>();
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.ERROR);
         items.add(ValidationResultEnum.ERROR);
 
-        ValidationResults<String, String> results = createTestData(items);
+        ValidationResults results = createTestData(items);
 
         assertNotNull(results);
         Set<ValidationResultEnum> status = results.getValidationStatus();
@@ -219,7 +212,7 @@ public class ValidationResultsTest {
                 "test2 =" + System.lineSeparator() +
                 "ERROR,test Error 2,java.io.IOException: Test exception 2";
 
-        final ValidationResults<String, String> results = new ValidationResults<>();
+        final ValidationResults results = new ValidationResults();
         final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "test Error", new IOException("Test exception"));
         final ValidationResult result2 = new ValidationResult(ValidationResultEnum.ERROR, "test Error 2", new IOException("Test exception 2"));
         results.addResult("test", result);
@@ -237,7 +230,6 @@ public class ValidationResultsTest {
 
     @Test
     public void javaCrazy() {
-
         final Set<String> newResultList = new LinkedHashSet<>();
         newResultList.add("Eric is a dummy");
         newResultList.add("Ari is slow");
