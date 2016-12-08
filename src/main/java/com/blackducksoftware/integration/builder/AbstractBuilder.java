@@ -27,11 +27,6 @@ import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public abstract class AbstractBuilder<Type> {
-    private final boolean shouldUseDefaultValues;
-
-    public AbstractBuilder(final boolean shouldUseDefaultValues) {
-        this.shouldUseDefaultValues = shouldUseDefaultValues;
-    }
 
     public abstract AbstractValidator createValidator();
 
@@ -65,7 +60,4 @@ public abstract class AbstractBuilder<Type> {
         }
     }
 
-    public boolean shouldUseDefaultValues() {
-        return shouldUseDefaultValues;
-    }
 }
