@@ -35,10 +35,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
-import com.blackducksoftware.integration.validator.ValidationResult;
-import com.blackducksoftware.integration.validator.ValidationResultEnum;
-import com.blackducksoftware.integration.validator.ValidationResults;
-
 public class ValidationResultsTest {
     private static final String KEY_PREFIX = "key-";
 
@@ -231,9 +227,28 @@ public class ValidationResultsTest {
     @Test
     public void javaCrazy() {
         final Set<String> newResultList = new LinkedHashSet<>();
-        newResultList.add("Eric is a dummy");
-        newResultList.add("Ari is slow");
-        newResultList.add("Ari is slow");
+        newResultList.add("error 1");
+        newResultList.add("error 2");
+        newResultList.add("error 3");
         System.out.println(StringUtils.join(newResultList, System.lineSeparator()));
+    }
+
+    @Test
+    public void testNonNullThrowableIsInString() {
+        final ValidationResult validationResult = new ValidationResult(ValidationResultEnum.WARN, "Lookout, there's a TIGER BEHIND YOU!!!",
+                new Exception("nobody wants to be eaten by a tiger"));
+        final String validationResultString = validationResult.toString();
+        assertFalse(validationResultString.contains("null"));
+        assertTrue(validationResultString.contains("Lookout, there's a TIGER BEHIND YOU!!!"));
+        assertTrue(validationResultString.contains("nobody wants to be eaten by a tiger"));
+    }
+
+    @Test
+    public void testNullThrowableIsNotInString() {
+        final ValidationResult validationResult = new ValidationResult(ValidationResultEnum.ERROR,
+                "You did not heed the warning...you have been eaten by a tiger. Shame.");
+        final String validationResultString = validationResult.toString();
+        assertFalse(validationResultString.contains("null"));
+        assertTrue(validationResultString.contains("You did not heed the warning...you have been eaten by a tiger. Shame."));
     }
 }

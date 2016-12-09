@@ -57,6 +57,10 @@ public class ValidationResult {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.SIMPLE_STYLE);
+        final ReflectionToStringBuilder reflectionToStringBuilder = new ReflectionToStringBuilder(this, RecursiveToStringStyle.SIMPLE_STYLE);
+        if (throwable == null) {
+            reflectionToStringBuilder.setExcludeFieldNames("throwable");
+        }
+        return reflectionToStringBuilder.toString();
     }
 }
