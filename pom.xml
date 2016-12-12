@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>integration-common</artifactId>
-  <version>4.0.3</version>
+  <version>4.0.4-SNAPSHOT</version>
 
   <name>Integration Common</name>
   <description>General code for Integrations with Black Duck Software products</description>
