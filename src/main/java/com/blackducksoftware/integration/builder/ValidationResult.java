@@ -31,6 +31,12 @@ public class ValidationResult {
 
     private final Throwable throwable;
 
+    public ValidationResult() {
+        resultType = null;
+        message = null;
+        throwable = null;
+    }
+
     public ValidationResult(final ValidationResultEnum resultType, final String message) {
         this.resultType = resultType;
         this.message = message;
