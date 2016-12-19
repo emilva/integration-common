@@ -19,8 +19,23 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.builder;
+package com.blackducksoftware.integration.validator;
 
-public enum ValidationResultEnum {
-    ERROR, WARN;
+import org.apache.commons.lang3.StringUtils;
+
+public abstract class AbstractValidator {
+    public abstract ValidationResults assertValid();
+
+    protected int stringToInteger(final String integer) throws IllegalArgumentException {
+        final String integerString = StringUtils.trimToNull(integer);
+        if (integerString != null) {
+            try {
+                return Integer.valueOf(integerString);
+            } catch (final NumberFormatException e) {
+                throw new IllegalArgumentException("The String : " + integer + " , is not an Integer.", e);
+            }
+        } else {
+            throw new IllegalArgumentException("The String : " + integer + " , is not an Integer.");
+        }
+    }
 }

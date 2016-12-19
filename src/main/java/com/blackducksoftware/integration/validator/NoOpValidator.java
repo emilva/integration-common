@@ -19,28 +19,13 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package com.blackducksoftware.integration.hub.util;
+package com.blackducksoftware.integration.validator;
 
-import static org.junit.Assert.assertNotNull;
+public class NoOpValidator extends AbstractValidator {
 
-import java.nio.charset.StandardCharsets;
-
-import org.junit.Test;
-
-import com.blackducksoftware.integration.util.ResourceUtil;
-
-public class ResourceUtilTest {
-
-    private static final String TEST_RESOURCE = "test-resource.txt";
-
-    @Test
-    public void testReturnsValues() throws Exception {
-        assertNotNull(ResourceUtil.getResourceAsStream(TEST_RESOURCE));
-        assertNotNull(ResourceUtil.getResourceAsStream(getClass(), TEST_RESOURCE));
-        assertNotNull(ResourceUtil.getResourceAsString(TEST_RESOURCE, StandardCharsets.UTF_8));
-        assertNotNull(ResourceUtil.getResourceAsString(TEST_RESOURCE, "UTF-8"));
-        assertNotNull(ResourceUtil.getResourceAsString(getClass(), TEST_RESOURCE, StandardCharsets.UTF_8));
-        assertNotNull(ResourceUtil.getResourceAsString(getClass(), TEST_RESOURCE, "UTF-8"));
+    @Override
+    public ValidationResults assertValid() {
+        final ValidationResults results = new ValidationResults();
+        return results;
     }
-
 }

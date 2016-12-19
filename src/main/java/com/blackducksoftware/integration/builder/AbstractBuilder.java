@@ -23,27 +23,29 @@ package com.blackducksoftware.integration.builder;
 
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class AbstractBuilder<Key, Type> {
-    private final boolean shouldUseDefaultValues;
+import com.blackducksoftware.integration.validator.AbstractValidator;
+import com.blackducksoftware.integration.validator.ValidationResults;
 
-    public AbstractBuilder(final boolean shouldUseDefaultValues) {
-        this.shouldUseDefaultValues = shouldUseDefaultValues;
-    }
+public abstract class AbstractBuilder<Type> {
+
+    public abstract AbstractValidator createValidator();
+
+    public abstract Type buildObject();
 
     public Type build() throws IllegalStateException {
-        final ValidationResults<Key, Type> results = buildResults();
+        // Create the validator at this time because it is guaranteed that the
+        // builder has all of the properties that will be used to construct the object.
+        // Therefore the properties in the builder can be used to construct the validator object.
+        final AbstractValidator validator = createValidator();
+        final ValidationResults results = validator.assertValid();
         if (results.isSuccess()) {
-            return results.getConstructedObject();
+            return buildObject();
         } else {
             String exceptionMessage = "Invalid Configuration: ";
             exceptionMessage += results.getAllResultString();
             throw new IllegalStateException(exceptionMessage);
         }
     }
-
-    public abstract ValidationResults<Key, Type> buildResults();
-
-    public abstract ValidationResults<Key, Type> assertValid();
 
     protected int stringToInteger(final String integer) throws IllegalArgumentException {
         final String integerString = StringUtils.trimToNull(integer);
@@ -56,10 +58,6 @@ public abstract class AbstractBuilder<Key, Type> {
         } else {
             throw new IllegalArgumentException("The String : " + integer + " , is not an Integer.");
         }
-    }
-
-    public boolean shouldUseDefaultValues() {
-        return shouldUseDefaultValues;
     }
 
 }
