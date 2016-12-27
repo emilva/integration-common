@@ -1,4 +1,6 @@
-/*******************************************************************************
+/**
+ * Integration Common
+ *
  * Copyright (C) 2016 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
@@ -18,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *******************************************************************************/
+ */
 package com.blackducksoftware.integration.hub.encryption;
 
 import static org.junit.Assert.assertEquals;
