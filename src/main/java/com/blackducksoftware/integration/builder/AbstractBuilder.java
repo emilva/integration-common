@@ -48,6 +48,12 @@ public abstract class AbstractBuilder<Type> {
         }
     }
 
+    public boolean isValid() {
+        final AbstractValidator validator = createValidator();
+        final ValidationResults results = validator.assertValid();
+        return results.isSuccess();
+    }
+
     protected int stringToInteger(final String integer) throws IllegalArgumentException {
         final String integerString = StringUtils.trimToNull(integer);
         if (integerString != null) {
