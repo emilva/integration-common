@@ -1,7 +1,7 @@
 /**
  * Integration Common
  *
- * Copyright (C) 2016 Black Duck Software, Inc.
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -46,12 +46,14 @@ public class ProxyUtil {
 
         for (final Pattern ignoredProxyHostPattern : ignoredProxyHostPatterns) {
             final Matcher m = ignoredProxyHostPattern.matcher(hostToMatch);
-            return m.find();
+            if (m.matches()) {
+                return true;
+            }
         }
         return false;
     }
 
-    public static List<Pattern> getIgnoredProxyHostPatterns(String ignoredProxyHosts) {
+    public static List<Pattern> getIgnoredProxyHostPatterns(final String ignoredProxyHosts) {
         final List<Pattern> ignoredProxyHostPatterns = new ArrayList<>();
         if (StringUtils.isNotBlank(ignoredProxyHosts)) {
             String[] ignoreHosts = null;
