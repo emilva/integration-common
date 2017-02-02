@@ -1,7 +1,7 @@
 /**
  * Integration Common
  *
- * Copyright (C) 2016 Black Duck Software, Inc.
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -30,7 +30,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -205,18 +204,18 @@ public class ValidationResultsTest {
 
     @Test
     public void testStringOutput() {
-        final String expected = "test =" + System.lineSeparator() + "ERROR,test Error,java.io.IOException: Test exception" + System.lineSeparator() +
-                "ERROR,test Error 2,java.io.IOException: Test exception 2" + System.lineSeparator() +
-                "test2 =" + System.lineSeparator() +
-                "ERROR,test Error 2,java.io.IOException: Test exception 2";
+        final String expected = "HUBURL = ERROR,Can not reach this server,java.io.IOException: Can not reach this server , ERROR,File does not exist,java.io.IOException: File does not exist"
+                + System.lineSeparator() +
+                "SCANTARGET = ERROR,File does not exist,java.io.IOException: File does not exist";
 
         final ValidationResults results = new ValidationResults();
-        final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "test Error", new IOException("Test exception"));
-        final ValidationResult result2 = new ValidationResult(ValidationResultEnum.ERROR, "test Error 2", new IOException("Test exception 2"));
-        results.addResult("test", result);
-        results.addResult("test", result);
-        results.addResult("test", result2);
-        results.addResult("test2", result2);
+        final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "Can not reach this server",
+                new IOException("Can not reach this server"));
+        final ValidationResult result2 = new ValidationResult(ValidationResultEnum.ERROR, "File does not exist", new IOException("File does not exist"));
+        results.addResult("HUBURL", result);
+        results.addResult("HUBURL", result);
+        results.addResult("HUBURL", result2);
+        results.addResult("SCANTARGET", result2);
 
         final String e = results.getAllResultString();
         System.out.println(expected);
@@ -224,15 +223,6 @@ public class ValidationResultsTest {
         System.out.println(e);
         assertEquals(expected, results.getAllResultString());
 
-    }
-
-    @Test
-    public void javaCrazy() {
-        final Set<String> newResultList = new LinkedHashSet<>();
-        newResultList.add("error 1");
-        newResultList.add("error 2");
-        newResultList.add("error 3");
-        System.out.println(StringUtils.join(newResultList, System.lineSeparator()));
     }
 
     @Test

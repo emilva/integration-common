@@ -1,7 +1,7 @@
 /**
  * Integration Common
  *
- * Copyright (C) 2016 Black Duck Software, Inc.
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,7 +29,7 @@ import java.util.Map;
 public class CIEnvironmentVariables {
     public static final String BDS_CACERTS_OVERRIDE = "BDS_CACERTS_OVERRIDE";
 
-    private final Map<String, String> environmentVariables = new HashMap<String, String>();
+    private final Map<String, String> environmentVariables = new HashMap<>();
 
     public void putAll(final Map<String, String> map) {
         environmentVariables.putAll(map);
@@ -53,6 +53,12 @@ public class CIEnvironmentVariables {
             value = defaultValue;
         }
         return value;
+    }
+
+    public Map<String, String> getVariables() {
+        final Map<String, String> variables = new HashMap<>();
+        variables.putAll(environmentVariables);
+        return variables;
     }
 
 }

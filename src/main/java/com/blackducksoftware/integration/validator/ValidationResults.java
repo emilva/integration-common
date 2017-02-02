@@ -1,7 +1,7 @@
 /**
  * Integration Common
  *
- * Copyright (C) 2016 Black Duck Software, Inc.
+ * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -47,7 +47,7 @@ public class ValidationResults {
         }
     }
 
-    public void addAllResultsStrings(final Map<Object, Set<String>> results, Set<ValidationResultEnum> newStatusSet) {
+    public void addAllResultsStrings(final Map<Object, Set<String>> results, final Set<ValidationResultEnum> newStatusSet) {
         for (final Entry<Object, Set<String>> entry : results.entrySet()) {
             for (final String result : entry.getValue()) {
                 // This will prevent duplication
@@ -62,7 +62,7 @@ public class ValidationResults {
         addResult(fieldKey, newResult, result.getResultType());
     }
 
-    public void addResult(final Object fieldKey, final String newResult, ValidationResultEnum newStatus) {
+    public void addResult(final Object fieldKey, final String newResult, final ValidationResultEnum newStatus) {
         addResult(fieldKey, newResult);
         status.add(newStatus);
     }
@@ -91,8 +91,8 @@ public class ValidationResults {
     public String getAllResultString() {
         final Set<String> results = new LinkedHashSet<>();
         for (final Entry<Object, Set<String>> result : resultMap.entrySet()) {
-            final String fieldResults = StringUtils.join(result.getValue(), System.lineSeparator());
-            results.add(result.getKey() + " =" + System.lineSeparator() + fieldResults);
+            final String fieldResults = StringUtils.join(result.getValue(), " , ");
+            results.add(result.getKey() + " = " + fieldResults);
         }
         String resultString = "";
         if (!results.isEmpty()) {
