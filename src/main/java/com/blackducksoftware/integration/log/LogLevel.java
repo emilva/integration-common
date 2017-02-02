@@ -25,43 +25,21 @@ package com.blackducksoftware.integration.log;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * The declared order of the LogLevels are important - your set level is loggable as are all the levels to the left.
+ * For example, if you set your LogLevel to INFO, INFO will be loggable, as will the levels to its left, WARN and ERROR.
+ * As there are no levels to the left of OFF, nothing will be logged when that level is set.
+ */
 public enum LogLevel {
-    OFF(0), ERROR(1), WARN(2), INFO(3), DEBUG(4), TRACE(5);
-
-    private int priority;
-
-    private LogLevel(final int priority) {
-        this.priority = priority;
-    }
-
-    private int getPriority() {
-        return priority;
-    }
+    OFF, ERROR, WARN, INFO, DEBUG, TRACE;
 
     /**
-     * Will return true if the message is loggable at the current logger level.
-     * False otherwise. Order : Error, Warn, Info, Debug, Trace
-     *
+     * @deprecated
+     *             Please use the instance method isLoggable(LogLevel logLevel) instead.
      */
+    @Deprecated
     public static boolean isLoggable(final LogLevel logger, final LogLevel message) {
-        // If the logger is set to TRACE(5) then all messages should be printed
-        // If the logger is set to ERROR(1) then only ERROR messages will be
-        // printed
-        // If the logger is set to INFO(3) and the message is DEBUG(4) then it
-        // wont be printed (3 is not >= 4).
-        // If the logger is set to INFO(3) and the message is ERROR(1) then it
-        // will be printed (3 is >= 1).
-        // If the logger is set to OFF(0), then no messages should be printed
-
-        if (logger.getPriority() == 0) {
-            return false;
-        }
-
-        if (logger.getPriority() >= message.getPriority()) {
-            return true;
-        }
-        return false;
-
+        return logger.isLoggable(message);
     }
 
     public static LogLevel fromString(final String level) {
@@ -72,6 +50,13 @@ public enum LogLevel {
             }
         }
         return LogLevel.INFO;
+    }
+
+    /**
+     * Will return true if logLevel is loggable for this logLevel, false otherwise.
+     */
+    public boolean isLoggable(final LogLevel logLevel) {
+        return this.compareTo(logLevel) >= 0;
     }
 
 }

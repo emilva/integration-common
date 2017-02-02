@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.logging;
+package com.blackducksoftware.integration.log;
 
 import static org.junit.Assert.assertEquals;
 
