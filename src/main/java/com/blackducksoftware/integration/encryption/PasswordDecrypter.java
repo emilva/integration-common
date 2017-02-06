@@ -28,7 +28,7 @@ import javax.crypto.Cipher;
 import com.blackducksoftware.integration.exception.EncryptionException;
 
 public class PasswordDecrypter {
-    public static String decrypt(final String password) throws IllegalArgumentException, EncryptionException {
+    public static String decrypt(final String password) throws EncryptionException {
         final EncryptionUtils encryptionUtils = new EncryptionUtils();
 
         final String decryptedPassword = encryptionUtils.alterString(password, null, Cipher.DECRYPT_MODE);
