@@ -5,11 +5,12 @@
   <parent>
     <groupId>com.blackducksoftware.integration</groupId>
     <artifactId>common-maven-parent</artifactId>
-    <version>2.2.5</version>
+    <version>2.4.1</version>
   </parent>
 
   <artifactId>integration-common</artifactId>
-  <version>5.2.2-SNAPSHOT</version>
+  <version>5.3.0</version>
+  <packaging>bundle</packaging>
 
   <name>Integration Common</name>
   <description>General code for Integrations with Black Duck Software products</description>
