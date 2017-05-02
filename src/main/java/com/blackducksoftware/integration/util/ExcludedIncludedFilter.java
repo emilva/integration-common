@@ -34,7 +34,7 @@ public class ExcludedIncludedFilter {
 
     private Set<String> createSetFromString(final String s) {
         final Set<String> set = new HashSet<>();
-        final StringTokenizer stringTokenizer = new StringTokenizer(s, ",");
+        final StringTokenizer stringTokenizer = new StringTokenizer(StringUtils.trimToEmpty(s), ",");
         while (stringTokenizer.hasMoreTokens()) {
             set.add(StringUtils.trimToEmpty(stringTokenizer.nextToken()));
         }
