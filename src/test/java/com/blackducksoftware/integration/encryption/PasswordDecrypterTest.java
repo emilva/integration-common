@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.encryption;
+package com.blackducksoftware.integration.encryption;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

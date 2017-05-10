@@ -21,28 +21,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.util;
+package com.blackducksoftware.integration.encryption;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.nio.charset.StandardCharsets;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.util.ResourceUtil;
+import com.blackducksoftware.integration.encryption.PasswordEncrypter;
 
-public class ResourceUtilTest {
-
-    private static final String TEST_RESOURCE = "test-resource.txt";
-
+public final class PasswordEncrypterTest {
     @Test
-    public void testReturnsValues() throws Exception {
-        assertNotNull(ResourceUtil.getResourceAsStream(TEST_RESOURCE));
-        assertNotNull(ResourceUtil.getResourceAsStream(getClass(), TEST_RESOURCE));
-        assertNotNull(ResourceUtil.getResourceAsString(TEST_RESOURCE, StandardCharsets.UTF_8));
-        assertNotNull(ResourceUtil.getResourceAsString(TEST_RESOURCE, "UTF-8"));
-        assertNotNull(ResourceUtil.getResourceAsString(getClass(), TEST_RESOURCE, StandardCharsets.UTF_8));
-        assertNotNull(ResourceUtil.getResourceAsString(getClass(), TEST_RESOURCE, "UTF-8"));
+    public void testMainEncryptPassword() throws Exception {
+        final String encryptedPassword = PasswordEncrypter.encrypt("Password");
+
+        assertEquals("SaTaqurAqc7q0nf0n6IL4erSd/Sfogvh6tJ39J+iC+Hq0nf0n6IL4erSd/Sfogvh6tJ39J+iC+Hq0nf0n6IL4Q==",
+                encryptedPassword);
     }
 
 }
