@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.KeyStore;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -110,9 +109,8 @@ public class CertificateHandler {
         if (StringUtils.isBlank(optionalKeyStorePass)) {
             optionalKeyStorePass = "changeit";
         }
-        final String storeType = KeyStore.getDefaultType();
         final String[] command = { "keytool", "-importcert", "-keystore", keyStore, "-storepass", optionalKeyStorePass, "-alias", url.getHost(), "-noprompt",
-                "-file", certificate.getAbsolutePath(), "-storetype", storeType };
+                "-file", certificate.getAbsolutePath() };
         try {
             final ProcessBuilder processBuilder = new ProcessBuilder(command);
             final Process proc = processBuilder.start();
