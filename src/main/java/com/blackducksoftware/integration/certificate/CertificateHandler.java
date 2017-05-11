@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.security.KeyStore;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +31,25 @@ public class CertificateHandler {
 
     public CertificateHandler(final IntLogger intLogger) {
         logger = intLogger;
+    }
+
+    public void retrieveAndImportHttpsCertificate(final URL url) throws IntegrationException {
+        retrieveAndImportHttpsCertificate(url, null);
+    }
+
+    public void retrieveAndImportHttpsCertificate(final URL url, final String optionalKeyStorePass) throws IntegrationException {
+        final File certificate = new File("temporaryCertificate.txt");
+        try {
+            certificate.createNewFile();
+            retrieveAndSaveHttpsCertificate(url, certificate);
+            importHttpsCertificateFromFile(url, certificate, optionalKeyStorePass);
+        } catch (final IntegrationException e) {
+            throw e;
+        } catch (final Exception e) {
+            throw new IntegrationException(e.getMessage(), e);
+        } finally {
+            certificate.delete();
+        }
     }
 
     public File retrieveAndSaveHttpsCertificate(final URL url, final File temporaryCertificateFile) throws IntegrationException {
@@ -52,7 +72,7 @@ public class CertificateHandler {
     }
 
     public String retrieveHttpsCertificateFromURL(final URL url) throws IntegrationException {
-        final String serverHost = url.getHost() + ":" + url.getPort();
+        final String serverHost = getServerHost(url);
         logger.info(String.format("Retrieving the certificate from %s", serverHost));
         final String[] command = { "keytool", "-printcert", "-rfc", "-sslserver", url.getHost() + ":" + url.getPort() };
         String output = "";
@@ -66,8 +86,8 @@ public class CertificateHandler {
                 logger.warn(errorOutput);
             }
             logger.debug(String.format("Exit code %d", exitCode));
-            if (proc.exitValue() != 0) {
-                throw new IntegrationException(String.format("Failed to retrieve the certificate from %s", serverHost));
+            if (exitCode != 0) {
+                throw new IntegrationException(String.format("Failed to retrieve the certificate from %s. %s", serverHost, output));
             }
         } catch (final Exception e) {
             throw new IntegrationException(e);
@@ -75,7 +95,11 @@ public class CertificateHandler {
         return output;
     }
 
-    public void importHttpsCertificate(final URL url, final File certificate, String optionalKeyStorePass) throws IntegrationException {
+    public void importHttpsCertificateFromFile(final URL url, final File certificate) throws IntegrationException {
+        importHttpsCertificateFromFile(url, certificate, null);
+    }
+
+    public void importHttpsCertificateFromFile(final URL url, final File certificate, String optionalKeyStorePass) throws IntegrationException {
         logger.info(String.format("Importing the certificate from %s", certificate.getAbsolutePath()));
         final String javaHome = System.getProperty("java.home");
         File jssecacerts = new File(javaHome);
@@ -86,8 +110,9 @@ public class CertificateHandler {
         if (StringUtils.isBlank(optionalKeyStorePass)) {
             optionalKeyStorePass = "changeit";
         }
+        final String storeType = KeyStore.getDefaultType();
         final String[] command = { "keytool", "-importcert", "-keystore", keyStore, "-storepass", optionalKeyStorePass, "-alias", url.getHost(), "-noprompt",
-                "-file", certificate.getAbsolutePath() };
+                "-file", certificate.getAbsolutePath(), "-storetype", storeType };
         try {
             final ProcessBuilder processBuilder = new ProcessBuilder(command);
             final Process proc = processBuilder.start();
@@ -95,13 +120,17 @@ public class CertificateHandler {
             final String output = readInputStream(proc.getInputStream());
             final String errorOutput = readInputStream(proc.getErrorStream());
             if (StringUtils.isNotBlank(output)) {
-                logger.info(output);
+                if (exitCode != 0) {
+                    logger.error(output);
+                } else {
+                    logger.info(output);
+                }
             }
             if (StringUtils.isNotBlank(errorOutput)) {
                 logger.warn(errorOutput);
             }
             logger.debug(String.format("Exit code %d", exitCode));
-            if (proc.exitValue() != 0) {
+            if (exitCode != 0) {
                 throw new IntegrationException(String.format("Failed to import the certificate into %s", keyStore));
             }
         } catch (final Exception e) {
@@ -115,9 +144,18 @@ public class CertificateHandler {
             String line;
             while ((line = outputReader.readLine()) != null) {
                 stringBuilder.append(line);
+                stringBuilder.append(System.lineSeparator());
             }
             return stringBuilder.toString();
         }
+    }
+
+    private String getServerHost(final URL url) {
+        String serverHost = url.getHost();
+        if (url.getPort() > 0) {
+            serverHost += ":" + url.getPort();
+        }
+        return serverHost;
     }
 
 }
