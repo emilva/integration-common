@@ -13,11 +13,13 @@ package com.blackducksoftware.integration.certificate;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -55,7 +57,7 @@ public class CertificateHandler {
         try {
             final String output = retrieveHttpsCertificateFromURL(url);
             if (output.contains("BEGIN CERTIFICATE")) {
-                try (final FileWriter writer = new FileWriter(temporaryCertificateFile)) {
+                try (final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(temporaryCertificateFile), StandardCharsets.UTF_8);) {
                     writer.write(output);
                 }
             } else {
@@ -137,7 +139,7 @@ public class CertificateHandler {
     }
 
     private String readInputStream(final InputStream stream) throws IOException {
-        try (final BufferedReader outputReader = new BufferedReader(new InputStreamReader(stream))) {
+        try (final BufferedReader outputReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             final StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = outputReader.readLine()) != null) {
