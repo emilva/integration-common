@@ -15,11 +15,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -124,7 +125,7 @@ public class CertificateHandlerTest {
 
     private String readFile(final File file) throws IOException {
         final StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 stringBuilder.append(line);
@@ -244,7 +245,7 @@ public class CertificateHandlerTest {
     }
 
     private static String readInputStream(final InputStream stream) throws IOException {
-        try (final BufferedReader outputReader = new BufferedReader(new InputStreamReader(stream))) {
+        try (final BufferedReader outputReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             final StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = outputReader.readLine()) != null) {
