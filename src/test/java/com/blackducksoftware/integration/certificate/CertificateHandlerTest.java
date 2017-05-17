@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -253,11 +252,6 @@ public class CertificateHandlerTest {
     }
 
     private static String readInputStream(final InputStream stream) throws IOException {
-        final List<String> lines = IOUtils.readLines(stream, StandardCharsets.UTF_8);
-        String output = "";
-        if (lines != null && !lines.isEmpty()) {
-            output = StringUtils.join(lines, System.lineSeparator());
-        }
-        return output;
+        return IOUtils.toString(stream, StandardCharsets.UTF_8);
     }
 }
