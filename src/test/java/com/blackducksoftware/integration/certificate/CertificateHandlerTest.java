@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -153,6 +155,8 @@ public class CertificateHandlerTest {
             final int exitCode = proc.waitFor();
             final String output = readInputStream(proc.getInputStream());
             final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
             if (StringUtils.isNotBlank(output)) {
                 if (exitCode != 0) {
                     logger.error(output);
@@ -191,6 +195,8 @@ public class CertificateHandlerTest {
             final int exitCode = proc.waitFor();
             final String output = readInputStream(proc.getInputStream());
             final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
             if (StringUtils.isNotBlank(output)) {
                 if (exitCode != 0) {
                     logger.error(output);
@@ -229,6 +235,8 @@ public class CertificateHandlerTest {
             final int exitCode = proc.waitFor();
             final String output = readInputStream(proc.getInputStream());
             final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
             if (StringUtils.isNotBlank(output)) {
                 logger.info(output);
             }
@@ -245,14 +253,11 @@ public class CertificateHandlerTest {
     }
 
     private static String readInputStream(final InputStream stream) throws IOException {
-        try (final BufferedReader outputReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-            final StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            while ((line = outputReader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(System.lineSeparator());
-            }
-            return stringBuilder.toString();
+        final List<String> lines = IOUtils.readLines(stream, StandardCharsets.UTF_8);
+        String output = "";
+        if (lines != null && !lines.isEmpty()) {
+            output = StringUtils.join(lines, System.lineSeparator());
         }
+        return output;
     }
 }

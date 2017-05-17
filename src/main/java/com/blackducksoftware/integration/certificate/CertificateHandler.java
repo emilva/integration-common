@@ -11,16 +11,16 @@
  */
 package com.blackducksoftware.integration.certificate;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
@@ -83,6 +83,8 @@ public class CertificateHandler {
             final int exitCode = proc.waitFor();
             output = readInputStream(proc.getInputStream());
             final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
             if (StringUtils.isNotBlank(errorOutput)) {
                 logger.warn(errorOutput);
             }
@@ -119,6 +121,8 @@ public class CertificateHandler {
             final int exitCode = proc.waitFor();
             final String output = readInputStream(proc.getInputStream());
             final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
             if (StringUtils.isNotBlank(output)) {
                 if (exitCode != 0) {
                     logger.error(output);
@@ -139,15 +143,12 @@ public class CertificateHandler {
     }
 
     private String readInputStream(final InputStream stream) throws IOException {
-        try (final BufferedReader outputReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-            final StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            while ((line = outputReader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(System.lineSeparator());
-            }
-            return stringBuilder.toString();
+        final List<String> lines = IOUtils.readLines(stream, StandardCharsets.UTF_8);
+        String output = "";
+        if (lines != null && !lines.isEmpty()) {
+            output = StringUtils.join(lines, System.lineSeparator());
         }
+        return output;
     }
 
     private String getServerHost(final URL url) {
