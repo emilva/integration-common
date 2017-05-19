@@ -33,10 +33,6 @@ public class CertificateHandler {
         logger = intLogger;
     }
 
-    public void retrieveAndImportHttpsCertificate(final URL url) throws IntegrationException {
-        retrieveAndImportHttpsCertificate(url, null);
-    }
-
     public void retrieveAndImportHttpsCertificate(final URL url, final String optionalKeyStorePass) throws IntegrationException {
         File certificate = null;
         try {
@@ -101,10 +97,6 @@ public class CertificateHandler {
             throw new IntegrationException(e);
         }
         return output;
-    }
-
-    public void importHttpsCertificateFromFile(final URL url, final File certificate) throws IntegrationException {
-        importHttpsCertificateFromFile(url, certificate, null);
     }
 
     public void importHttpsCertificateFromFile(final URL url, final File certificate, String optionalKeyStorePass) throws IntegrationException {

@@ -72,7 +72,7 @@ public class CertificateHandlerTest {
     @AfterClass
     public static void tearDown() throws Exception {
         if (originalCertificate != null && originalCertificate.exists()) {
-            CERT_HANDLER.importHttpsCertificateFromFile(url, originalCertificate);
+            CERT_HANDLER.importHttpsCertificateFromFile(url, originalCertificate, null);
             originalCertificate.delete();
         }
     }
@@ -113,7 +113,7 @@ public class CertificateHandlerTest {
         final File outputFile = certificateHandler.retrieveAndSaveHttpsCertificate(url, temporaryCertificateFile);
         final String output = readFile(outputFile);
         assertTrue(output.contains("BEGIN CERTIFICATE"));
-        certificateHandler.importHttpsCertificateFromFile(url, outputFile);
+        certificateHandler.importHttpsCertificateFromFile(url, outputFile, null);
         assertTrue(certificateHandler.isCertificateInKeystore(url, null));
         certificateHandler.removeHttpsCertificate(url, null);
         assertFalse(certificateHandler.isCertificateInKeystore(url, null));
@@ -122,7 +122,7 @@ public class CertificateHandlerTest {
     @Test
     public void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger);
-        certificateHandler.retrieveAndImportHttpsCertificate(url);
+        certificateHandler.retrieveAndImportHttpsCertificate(url, null);
         assertTrue(certificateHandler.isCertificateInKeystore(url, null));
         certificateHandler.removeHttpsCertificate(url, null);
         assertFalse(certificateHandler.isCertificateInKeystore(url, null));
