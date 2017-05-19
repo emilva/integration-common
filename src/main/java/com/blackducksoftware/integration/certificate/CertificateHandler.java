@@ -38,9 +38,9 @@ public class CertificateHandler {
     }
 
     public void retrieveAndImportHttpsCertificate(final URL url, final String optionalKeyStorePass) throws IntegrationException {
-        final File certificate = new File("temporaryCertificate.txt");
+        File certificate = null;
         try {
-            certificate.createNewFile();
+            certificate = File.createTempFile("temporaryCertificate", ".tmp");
             retrieveAndSaveHttpsCertificate(url, certificate);
             importHttpsCertificateFromFile(url, certificate, optionalKeyStorePass);
         } catch (final IntegrationException e) {
@@ -48,7 +48,9 @@ public class CertificateHandler {
         } catch (final Exception e) {
             throw new IntegrationException(e.getMessage(), e);
         } finally {
-            certificate.delete();
+            if (certificate.exists()) {
+                certificate.delete();
+            }
         }
     }
 
@@ -85,7 +87,11 @@ public class CertificateHandler {
             // destroy() will cleanup the process resources, including the streams
             proc.destroy();
             if (StringUtils.isNotBlank(errorOutput)) {
-                logger.warn(errorOutput);
+                if (exitCode != 0) {
+                    logger.error(errorOutput);
+                } else {
+                    logger.info(errorOutput);
+                }
             }
             logger.debug(String.format("Exit code %d", exitCode));
             if (exitCode != 0) {
@@ -102,13 +108,13 @@ public class CertificateHandler {
     }
 
     public void importHttpsCertificateFromFile(final URL url, final File certificate, String optionalKeyStorePass) throws IntegrationException {
-        logger.info(String.format("Importing the certificate from %s", certificate.getAbsolutePath()));
         final String javaHome = System.getProperty("java.home");
         File jssecacerts = new File(javaHome);
         jssecacerts = new File(jssecacerts, "lib");
         jssecacerts = new File(jssecacerts, "security");
         jssecacerts = new File(jssecacerts, "jssecacerts");
         final String keyStore = jssecacerts.getAbsolutePath();
+        logger.info(String.format("Importing the certificate from %s into keystore %s", certificate.getAbsolutePath(), keyStore));
         if (StringUtils.isBlank(optionalKeyStorePass)) {
             optionalKeyStorePass = "changeit";
         }
@@ -130,7 +136,11 @@ public class CertificateHandler {
                 }
             }
             if (StringUtils.isNotBlank(errorOutput)) {
-                logger.warn(errorOutput);
+                if (exitCode != 0) {
+                    logger.error(errorOutput);
+                } else {
+                    logger.info(errorOutput);
+                }
             }
             logger.debug(String.format("Exit code %d", exitCode));
             if (exitCode != 0) {
@@ -139,6 +149,92 @@ public class CertificateHandler {
         } catch (final Exception e) {
             throw new IntegrationException(e);
         }
+    }
+
+    public void removeHttpsCertificate(final URL url, String optionalKeyStorePass) throws IntegrationException {
+        final String javaHome = System.getProperty("java.home");
+        File jssecacerts = new File(javaHome);
+        jssecacerts = new File(jssecacerts, "lib");
+        jssecacerts = new File(jssecacerts, "security");
+        jssecacerts = new File(jssecacerts, "jssecacerts");
+        final String keyStore = jssecacerts.getAbsolutePath();
+        logger.info(String.format("Removing the certificate from %s", keyStore));
+        if (StringUtils.isBlank(optionalKeyStorePass)) {
+            optionalKeyStorePass = "changeit";
+        }
+        final String[] command = { "keytool", "-delete", "-keystore", keyStore, "-storepass", optionalKeyStorePass, "-alias", url.getHost(), "-noprompt" };
+        try {
+            final ProcessBuilder processBuilder = new ProcessBuilder(command);
+            final Process proc = processBuilder.start();
+            final int exitCode = proc.waitFor();
+            final String output = readInputStream(proc.getInputStream());
+            final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
+            if (StringUtils.isNotBlank(output)) {
+                logger.info(output);
+            }
+            if (StringUtils.isNotBlank(errorOutput)) {
+                logger.warn(errorOutput);
+            }
+            logger.debug(String.format("Exit code %d", exitCode));
+            if (proc.exitValue() != 0) {
+                throw new IntegrationException(String.format("Failed to remove the certificate from %s", keyStore));
+            }
+        } catch (final Exception e) {
+            throw new IntegrationException(e);
+        }
+    }
+
+    public boolean isCertificateInKeystore(final URL url, String optionalKeyStorePass) throws IntegrationException {
+        final String javaHome = System.getProperty("java.home");
+        File jssecacerts = new File(javaHome);
+        jssecacerts = new File(jssecacerts, "lib");
+        jssecacerts = new File(jssecacerts, "security");
+        jssecacerts = new File(jssecacerts, "jssecacerts");
+        if (!jssecacerts.exists()) {
+            return false;
+        }
+        final String keyStore = jssecacerts.getAbsolutePath();
+        logger.info(String.format("Removing the certificate from %s", keyStore));
+        if (StringUtils.isBlank(optionalKeyStorePass)) {
+            optionalKeyStorePass = "changeit";
+        }
+        final String[] command = { "keytool", "-list", "-keystore", keyStore, "-storepass", optionalKeyStorePass, "-alias", url.getHost(), "-noprompt" };
+        boolean certificateIsInKeystore = false;
+        try {
+            final ProcessBuilder processBuilder = new ProcessBuilder(command);
+            final Process proc = processBuilder.start();
+            final int exitCode = proc.waitFor();
+            final String output = readInputStream(proc.getInputStream());
+            final String errorOutput = readInputStream(proc.getErrorStream());
+            // destroy() will cleanup the process resources, including the streams
+            proc.destroy();
+            if (StringUtils.isNotBlank(output)) {
+                if (exitCode != 0) {
+                    if (output.contains("Alias <" + url.getHost() + "> does not exist")) {
+                        return false;
+                    }
+                    logger.error(output);
+                } else {
+                    certificateIsInKeystore = true;
+                }
+            }
+            if (StringUtils.isNotBlank(errorOutput)) {
+                if (exitCode != 0) {
+                    logger.error(output);
+                } else {
+                    certificateIsInKeystore = true;
+                }
+            }
+            logger.debug(String.format("Exit code %d", exitCode));
+            if (proc.exitValue() != 0 && !output.contains("Alias <" + url.getHost() + "> does not exist")) {
+                throw new IntegrationException(String.format("Failed to run command '%s'", StringUtils.join(command, " ")));
+            }
+        } catch (final Exception e) {
+            throw new IntegrationException(e);
+        }
+        return certificateIsInKeystore;
     }
 
     private String readInputStream(final InputStream stream) throws IOException {
