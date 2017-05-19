@@ -34,12 +34,12 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ValidationResults {
 
-    private final Map<Object, Set<String>> resultMap = new LinkedHashMap<>();
+    private final Map<FieldEnum, Set<ValidationResult>> resultMap = new LinkedHashMap<>();
 
     private final Set<ValidationResultEnum> status = EnumSet.noneOf(ValidationResultEnum.class);
 
-    public void addAllResults(final Map<Object, Set<ValidationResult>> results) {
-        for (final Entry<Object, Set<ValidationResult>> entry : results.entrySet()) {
+    public void addAllResults(final Map<FieldEnum, Set<ValidationResult>> results) {
+        for (final Entry<FieldEnum, Set<ValidationResult>> entry : results.entrySet()) {
             for (final ValidationResult result : entry.getValue()) {
                 // This will prevent duplication
                 addResult(entry.getKey(), result);
@@ -47,50 +47,28 @@ public class ValidationResults {
         }
     }
 
-    public void addAllResultsStrings(final Map<Object, Set<String>> results, final Set<ValidationResultEnum> newStatusSet) {
-        for (final Entry<Object, Set<String>> entry : results.entrySet()) {
-            for (final String result : entry.getValue()) {
-                // This will prevent duplication
-                addResult(entry.getKey(), result);
-            }
-        }
-        status.addAll(newStatusSet);
-    }
-
-    public void addResult(final Object fieldKey, final ValidationResult result) {
-        final String newResult = result.toString().trim();
-        addResult(fieldKey, newResult, result.getResultType());
-    }
-
-    public void addResult(final Object fieldKey, final String newResult, final ValidationResultEnum newStatus) {
-        addResult(fieldKey, newResult);
-        status.add(newStatus);
-    }
-
-    private void addResult(final Object fieldKey, final String newResult) {
-        final Set<String> resultStrings;
-        if (resultMap.containsKey(fieldKey)) {
-            resultStrings = resultMap.get(fieldKey);
-
-            if (!resultStrings.contains(newResult)) {
-                resultStrings.add(newResult);
-                resultMap.put(fieldKey, resultStrings);
-            }
+    public void addResult(final FieldEnum field, final ValidationResult result) {
+        final Set<ValidationResult> results;
+        if (resultMap.containsKey(field)) {
+            results = resultMap.get(field);
+            results.add(result);
+            status.add(result.getResultType());
         } else {
-            final Set<String> newResults = new LinkedHashSet<>();
-            newResults.add(newResult);
-            resultMap.put(fieldKey, newResults);
+            final Set<ValidationResult> newResults = new LinkedHashSet<>();
+            newResults.add(result);
+            resultMap.put(field, newResults);
+            status.add(result.getResultType());
         }
     }
 
-    public String getResultString(final Object fieldKey) {
-        final Set<String> results = resultMap.get(fieldKey);
+    public String getResultString(final FieldEnum field) {
+        final Set<ValidationResult> results = resultMap.get(field);
         return StringUtils.join(results, System.lineSeparator());
     }
 
     public String getAllResultString() {
         final Set<String> results = new LinkedHashSet<>();
-        for (final Entry<Object, Set<String>> result : resultMap.entrySet()) {
+        for (final Entry<FieldEnum, Set<ValidationResult>> result : resultMap.entrySet()) {
             final String fieldResults = StringUtils.join(result.getValue(), " , ");
             results.add(result.getKey() + " = " + fieldResults);
         }
@@ -101,7 +79,7 @@ public class ValidationResults {
         return resultString;
     }
 
-    public Map<Object, Set<String>> getResultMap() {
+    public Map<FieldEnum, Set<ValidationResult>> getResultMap() {
         return resultMap;
     }
 

@@ -37,23 +37,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 public class ValidationResultsTest {
-    private static final String KEY_PREFIX = "key-";
-
     private static final String TEST_MESSAGE_PREFIX = "Test Message ";
-
-    private static final String KEY_1 = "key-1";
-
-    private static final String KEY_0 = "key-0";
 
     private ValidationResults createTestData(final List<ValidationResultEnum> resultTypeList) {
         final ValidationResults results = new ValidationResults();
         final int count = resultTypeList.size();
         for (int index = 0; index < count; index++) {
-            final String key = KEY_PREFIX + index;
             final String message = TEST_MESSAGE_PREFIX + index;
 
             final ValidationResult result = new ValidationResult(resultTypeList.get(index), message);
-            results.addResult(key, result);
+            results.addResult(TestField.KEY_0, result);
         }
 
         return results;
@@ -133,14 +126,14 @@ public class ValidationResultsTest {
 
         assertNotNull(results);
         final String anotherMsg = "Test ERROR Message";
-        results.addResult(KEY_0, new ValidationResult(ValidationResultEnum.ERROR, anotherMsg));
-        results.addResult(KEY_0, new ValidationResult(ValidationResultEnum.ERROR, anotherMsg));
+        results.addResult(TestField.KEY_0, new ValidationResult(ValidationResultEnum.ERROR, anotherMsg));
+        results.addResult(TestField.KEY_0, new ValidationResult(ValidationResultEnum.ERROR, anotherMsg));
         final String warningMessage = TEST_MESSAGE_PREFIX + "WARNING";
-        results.addResult(KEY_1, new ValidationResult(ValidationResultEnum.WARN, warningMessage));
-        final String message = results.getResultString(KEY_1);
+        results.addResult(TestField.KEY_1, new ValidationResult(ValidationResultEnum.WARN, warningMessage));
+        final String message = results.getResultString(TestField.KEY_1);
 
         assertTrue(StringUtils.isNotBlank(message));
-        assertTrue(StringUtils.contains(message, TEST_MESSAGE_PREFIX + "1"));
+        assertTrue(StringUtils.contains(message, warningMessage));
     }
 
     @Test
@@ -153,7 +146,7 @@ public class ValidationResultsTest {
         final ValidationResults results = createTestData(items);
 
         assertNotNull(results);
-        final String message = results.getResultString("key does not exist");
+        final String message = results.getResultString(TestField.KEY_1);
 
         assertTrue(StringUtils.isBlank(message));
     }
@@ -212,10 +205,10 @@ public class ValidationResultsTest {
         final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "Can not reach this server",
                 new IOException("Can not reach this server"));
         final ValidationResult result2 = new ValidationResult(ValidationResultEnum.ERROR, "File does not exist", new IOException("File does not exist"));
-        results.addResult("HUBURL", result);
-        results.addResult("HUBURL", result);
-        results.addResult("HUBURL", result2);
-        results.addResult("SCANTARGET", result2);
+        results.addResult(TestField.HUBURL, result);
+        results.addResult(TestField.HUBURL, result);
+        results.addResult(TestField.HUBURL, result2);
+        results.addResult(TestField.SCANTARGET, result2);
 
         final String e = results.getAllResultString();
         System.out.println(expected);
@@ -242,5 +235,20 @@ public class ValidationResultsTest {
         final String validationResultString = validationResult.toString();
         assertFalse(validationResultString.contains("null"));
         assertTrue(validationResultString.contains("You did not heed the warning...you have been eaten by a tiger. Shame."));
+    }
+
+    private static enum TestField implements FieldEnum {
+        HUBURL("HubURL"), SCANTARGET("ScanTarget"), KEY_0("Key0"), KEY_1("Key1");
+
+        private final String key;
+
+        private TestField(final String key) {
+            this.key = key;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
     }
 }

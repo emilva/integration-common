@@ -25,7 +25,6 @@ package com.blackducksoftware.integration.builder;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.exception.IntegrationCertificateException;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
@@ -45,9 +44,6 @@ public abstract class AbstractBuilder<Type> {
         } else {
             String exceptionMessage = "Invalid Configuration: ";
             exceptionMessage += results.getAllResultString();
-            if (exceptionMessage.contains("SunCertPathBuilderException")) {
-                throw new IntegrationCertificateException(exceptionMessage);
-            }
             throw new IllegalStateException(exceptionMessage);
         }
     }
