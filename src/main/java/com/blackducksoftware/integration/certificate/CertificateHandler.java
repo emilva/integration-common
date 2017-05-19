@@ -200,7 +200,7 @@ public class CertificateHandler {
             return false;
         }
         final String keyStore = jssecacerts.getAbsolutePath();
-        logger.info(String.format("Removing the certificate from %s", keyStore));
+        logger.info(String.format("Checking for alias %s in keystore %s", url.getHost(), keyStore));
         if (StringUtils.isBlank(optionalKeyStorePass)) {
             optionalKeyStorePass = "changeit";
         }
