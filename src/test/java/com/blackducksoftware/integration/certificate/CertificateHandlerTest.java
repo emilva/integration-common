@@ -24,23 +24,15 @@
 package com.blackducksoftware.integration.certificate;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.security.cert.Certificate;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -57,9 +49,7 @@ public class CertificateHandlerTest {
 
     private static URL url;
 
-    private static File originalCertificate;
-
-    private File temporaryCertificateFile;
+    private static Certificate originalCertificate;
 
     @BeforeClass
     public static void init() throws Exception {
@@ -68,11 +58,10 @@ public class CertificateHandlerTest {
         Assume.assumeTrue(StringUtils.isNotBlank(urlString));
         url = new URL(urlString);
         try {
-            final boolean isCertificateInKeystore = CERT_HANDLER.isCertificateInKeystore(url, null);
+            final boolean isCertificateInKeystore = CERT_HANDLER.isCertificateInKeystore(url);
             if (isCertificateInKeystore) {
-                originalCertificate = File.createTempFile("originalCertificate", ".tmp");
-                exportHttpsCertificateFromKeystore(url, originalCertificate, null);
-                CERT_HANDLER.removeHttpsCertificate(url, null);
+                originalCertificate = CERT_HANDLER.getHttpsCertificateFromKeyStore(url);
+                CERT_HANDLER.removeHttpsCertificate(url);
             } else {
                 logger.error(String.format("Certificate for %s is not in the keystore.", url.getHost()));
             }
@@ -83,115 +72,25 @@ public class CertificateHandlerTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        if (originalCertificate != null && originalCertificate.exists()) {
-            CERT_HANDLER.importHttpsCertificateFromFile(url, originalCertificate, null);
-            originalCertificate.delete();
-        }
-    }
-
-    @Before
-    public void testSetup() throws IOException {
-        if (temporaryCertificateFile != null && temporaryCertificateFile.exists()) {
-            temporaryCertificateFile.delete();
-        }
-        temporaryCertificateFile = File.createTempFile("certificate", ".tmp");
-    }
-
-    @After
-    public void cleanUp() {
-        if (temporaryCertificateFile != null && temporaryCertificateFile.exists()) {
-            temporaryCertificateFile.delete();
+        if (originalCertificate != null) {
+            CERT_HANDLER.importHttpsCertificate(url, originalCertificate);
         }
     }
 
     @Test
     public void testCertificateRetrieval() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger);
-        final String output = certificateHandler.retrieveHttpsCertificateFromURL(url);
-        assertTrue(output.contains("BEGIN CERTIFICATE"));
-    }
-
-    @Test
-    public void testCertificateRetrievalAndSaveToFile() throws Exception {
-        final CertificateHandler certificateHandler = new CertificateHandler(logger);
-        final File outputFile = certificateHandler.retrieveAndSaveHttpsCertificate(url, temporaryCertificateFile);
-        final String output = readFile(outputFile);
-        assertTrue(output.contains("BEGIN CERTIFICATE"));
-    }
-
-    @Test
-    public void testCertificateRetrievalAndImport() throws Exception {
-        final CertificateHandler certificateHandler = new CertificateHandler(logger);
-        final File outputFile = certificateHandler.retrieveAndSaveHttpsCertificate(url, temporaryCertificateFile);
-        final String output = readFile(outputFile);
-        assertTrue(output.contains("BEGIN CERTIFICATE"));
-        certificateHandler.importHttpsCertificateFromFile(url, outputFile, null);
-        assertTrue(certificateHandler.isCertificateInKeystore(url, null));
-        certificateHandler.removeHttpsCertificate(url, null);
-        assertFalse(certificateHandler.isCertificateInKeystore(url, null));
+        final Certificate output = certificateHandler.retrieveHttpsCertificateFromURL(url);
+        assertNotNull(output);
     }
 
     @Test
     public void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger);
-        certificateHandler.retrieveAndImportHttpsCertificate(url, null);
-        assertTrue(certificateHandler.isCertificateInKeystore(url, null));
-        certificateHandler.removeHttpsCertificate(url, null);
-        assertFalse(certificateHandler.isCertificateInKeystore(url, null));
+        certificateHandler.retrieveAndImportHttpsCertificate(url);
+        assertTrue(certificateHandler.isCertificateInKeystore(url));
+        certificateHandler.removeHttpsCertificate(url);
+        assertFalse(certificateHandler.isCertificateInKeystore(url));
     }
 
-    private String readFile(final File file) throws IOException {
-        final StringBuilder stringBuilder = new StringBuilder();
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-        }
-        return stringBuilder.toString();
-    }
-
-    private static void exportHttpsCertificateFromKeystore(final URL url, final File certificateFile, String optionalKeyStorePass) throws IntegrationException {
-        final String javaHome = System.getProperty("java.home");
-        File jssecacerts = new File(javaHome);
-        jssecacerts = new File(jssecacerts, "lib");
-        jssecacerts = new File(jssecacerts, "security");
-        jssecacerts = new File(jssecacerts, "jssecacerts");
-        final String keyStore = jssecacerts.getAbsolutePath();
-        logger.info(String.format("Removing the certificate from %s", keyStore));
-        if (StringUtils.isBlank(optionalKeyStorePass)) {
-            optionalKeyStorePass = "changeit";
-        }
-        final String[] command = { "keytool", "-export", "-keystore", keyStore, "-storepass", optionalKeyStorePass, "-alias", url.getHost(), "-noprompt",
-                "-file", certificateFile.getAbsolutePath() };
-        try {
-            final ProcessBuilder processBuilder = new ProcessBuilder(command);
-            final Process proc = processBuilder.start();
-            final int exitCode = proc.waitFor();
-            final String output = readInputStream(proc.getInputStream());
-            final String errorOutput = readInputStream(proc.getErrorStream());
-            // destroy() will cleanup the process resources, including the streams
-            proc.destroy();
-            if (StringUtils.isNotBlank(output)) {
-                if (exitCode != 0) {
-                    logger.error(output);
-                } else {
-                    logger.info(output);
-                }
-            }
-            if (StringUtils.isNotBlank(errorOutput)) {
-                logger.warn(errorOutput);
-            }
-            logger.debug(String.format("Exit code %d", exitCode));
-            if (proc.exitValue() != 0) {
-                throw new IntegrationException(String.format("Failed to find the certificate in %s", keyStore));
-            }
-        } catch (final Exception e) {
-            throw new IntegrationException(e);
-        }
-    }
-
-    private static String readInputStream(final InputStream stream) throws IOException {
-        return IOUtils.toString(stream, StandardCharsets.UTF_8);
-    }
 }
