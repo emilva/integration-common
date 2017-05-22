@@ -58,9 +58,9 @@ public class CertificateHandlerTest {
         Assume.assumeTrue(StringUtils.isNotBlank(urlString));
         url = new URL(urlString);
         try {
-            final boolean isCertificateInKeystore = CERT_HANDLER.isCertificateInKeystore(url);
+            final boolean isCertificateInKeystore = CERT_HANDLER.isCertificateInTrustStore(url);
             if (isCertificateInKeystore) {
-                originalCertificate = CERT_HANDLER.getHttpsCertificateFromKeyStore(url);
+                originalCertificate = CERT_HANDLER.retrieveHttpsCertificateFromTrustStore(url);
                 CERT_HANDLER.removeHttpsCertificate(url);
             } else {
                 logger.error(String.format("Certificate for %s is not in the keystore.", url.getHost()));
@@ -88,9 +88,10 @@ public class CertificateHandlerTest {
     public void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger);
         certificateHandler.retrieveAndImportHttpsCertificate(url);
-        assertTrue(certificateHandler.isCertificateInKeystore(url));
+        assertTrue(certificateHandler.isCertificateInTrustStore(url));
+        assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
         certificateHandler.removeHttpsCertificate(url);
-        assertFalse(certificateHandler.isCertificateInKeystore(url));
+        assertFalse(certificateHandler.isCertificateInTrustStore(url));
     }
 
 }
