@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>integration-common</artifactId>
-  <version>5.7.4</version>
+  <version>5.7.5-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <name>Integration Common</name>
