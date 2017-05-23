@@ -103,6 +103,7 @@ public class CertificateHandlerTest {
     @Test
     public void testKeystoreSetBySystemProperty() throws Exception {
         final File tmpTrustStore = folder.newFile();
+        assertTrue(tmpTrustStore.length() == 0);
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath());
             final CertificateHandler certificateHandler = new CertificateHandler(logger);
@@ -110,6 +111,7 @@ public class CertificateHandlerTest {
             assertTrue(certificateHandler.isCertificateInTrustStore(url));
             assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
             assertTrue(tmpTrustStore.isFile());
+            assertTrue(tmpTrustStore.length() > 0);
         } finally {
             if (tmpTrustStore.exists()) {
                 tmpTrustStore.delete();
