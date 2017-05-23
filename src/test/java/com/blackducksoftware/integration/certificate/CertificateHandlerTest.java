@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.net.URL;
 import java.security.cert.Certificate;
 
@@ -34,7 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.log.IntLogger;
@@ -50,6 +53,9 @@ public class CertificateHandlerTest {
     private static URL url;
 
     private static Certificate originalCertificate;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
     public static void init() throws Exception {
@@ -92,6 +98,23 @@ public class CertificateHandlerTest {
         assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
         certificateHandler.removeHttpsCertificate(url);
         assertFalse(certificateHandler.isCertificateInTrustStore(url));
+    }
+
+    @Test
+    public void testKeystoreSetBySystemProperty() throws Exception {
+        final File tmpTrustStore = folder.newFile();
+        try {
+            System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath());
+            final CertificateHandler certificateHandler = new CertificateHandler(logger);
+            certificateHandler.retrieveAndImportHttpsCertificate(url);
+            assertTrue(certificateHandler.isCertificateInTrustStore(url));
+            assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
+            assertTrue(tmpTrustStore.isFile());
+        } finally {
+            if (tmpTrustStore.exists()) {
+                tmpTrustStore.delete();
+            }
+        }
     }
 
 }

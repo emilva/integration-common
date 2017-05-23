@@ -144,7 +144,7 @@ public class CertificateHandler {
 
     public boolean isCertificateInTrustStore(final URL url) throws IntegrationException {
         final File trustStore = getTrustStore();
-        if (!trustStore.exists()) {
+        if (!trustStore.isFile()) {
             return false;
         }
         final String jssecacertsPath = trustStore.getAbsolutePath();
@@ -157,15 +157,16 @@ public class CertificateHandler {
         }
     }
 
-    private KeyStore getKeyStore(final File jssecacerts)
+    private KeyStore getKeyStore(final File trustStore)
             throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        if (jssecacerts.exists()) {
+        // trustStore must be an existing file and it must not be empty, otherwise we create a new empty keystore
+        if (trustStore.isFile() && trustStore.length() > 0) {
             final PasswordProtection protection = new PasswordProtection(getKeyStorePassword());
-            return KeyStore.Builder.newInstance(getTrustStoreType(), null, jssecacerts, protection).getKeyStore();
+            return KeyStore.Builder.newInstance(getTrustStoreType(), null, trustStore, protection).getKeyStore();
         }
         final KeyStore keyStore = KeyStore.getInstance(getTrustStoreType());
         keyStore.load(null, null);
-        try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(jssecacerts))) {
+        try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(trustStore))) {
             // to create a valid empty keystore file
             keyStore.store(stream, getKeyStorePassword());
         }
