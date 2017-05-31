@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.net.URL;
 import java.security.cert.Certificate;
 
@@ -34,7 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.log.IntLogger;
@@ -51,6 +54,9 @@ public class CertificateHandlerTest {
 
     private static Certificate originalCertificate;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @BeforeClass
     public static void init() throws Exception {
         final String urlString = System.getProperty("HTTPS_URL");
@@ -58,9 +64,9 @@ public class CertificateHandlerTest {
         Assume.assumeTrue(StringUtils.isNotBlank(urlString));
         url = new URL(urlString);
         try {
-            final boolean isCertificateInKeystore = CERT_HANDLER.isCertificateInKeystore(url);
+            final boolean isCertificateInKeystore = CERT_HANDLER.isCertificateInTrustStore(url);
             if (isCertificateInKeystore) {
-                originalCertificate = CERT_HANDLER.getHttpsCertificateFromKeyStore(url);
+                originalCertificate = CERT_HANDLER.retrieveHttpsCertificateFromTrustStore(url);
                 CERT_HANDLER.removeHttpsCertificate(url);
             } else {
                 logger.error(String.format("Certificate for %s is not in the keystore.", url.getHost()));
@@ -88,9 +94,29 @@ public class CertificateHandlerTest {
     public void testRetrieveAndImportHttpsCertificate() throws Exception {
         final CertificateHandler certificateHandler = new CertificateHandler(logger);
         certificateHandler.retrieveAndImportHttpsCertificate(url);
-        assertTrue(certificateHandler.isCertificateInKeystore(url));
+        assertTrue(certificateHandler.isCertificateInTrustStore(url));
+        assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
         certificateHandler.removeHttpsCertificate(url);
-        assertFalse(certificateHandler.isCertificateInKeystore(url));
+        assertFalse(certificateHandler.isCertificateInTrustStore(url));
+    }
+
+    @Test
+    public void testKeystoreSetBySystemProperty() throws Exception {
+        final File tmpTrustStore = folder.newFile();
+        assertTrue(tmpTrustStore.length() == 0);
+        try {
+            System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath());
+            final CertificateHandler certificateHandler = new CertificateHandler(logger);
+            certificateHandler.retrieveAndImportHttpsCertificate(url);
+            assertTrue(certificateHandler.isCertificateInTrustStore(url));
+            assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
+            assertTrue(tmpTrustStore.isFile());
+            assertTrue(tmpTrustStore.length() > 0);
+        } finally {
+            if (tmpTrustStore.exists()) {
+                tmpTrustStore.delete();
+            }
+        }
     }
 
 }
