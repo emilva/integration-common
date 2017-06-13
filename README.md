@@ -4,7 +4,7 @@ The integration-common library supplies shared utilities across many integration
 ## Build ##
 
 [![Build Status](https://travis-ci.org/blackducksoftware/integration-common.svg?branch=master)](https://travis-ci.org/blackducksoftware/integration-common)
-[![Coverage Status](https://coveralls.io/repos/github/blackducksoftware/integration-common/badge.svg?branch=master)](https://coveralls.io/github/blackducksoftware/integration-common?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/blackducksoftware/integration-common/badge.svg?branch=master)](https://coveralls.io/github/blackducksoftware/integration-common?branch=master) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/groups/blackducksoftware/locations/integration-common/public/results/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/groups/blackducksoftware/locations/integration-common/public/results/branches/master)
 
 ## Where can I get the latest release? ##
 You can download the latest release from Maven Central.
