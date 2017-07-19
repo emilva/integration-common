@@ -112,9 +112,9 @@ public class EncryptionUtils {
             cipher.init(cipherMode, key);
             bytes = Arrays.copyOf(bytes, bufferSize);
             if (Cipher.ENCRYPT_MODE == cipherMode) {
-                alteredString = encrypt(cipher, bytes, bufferSize);
+                alteredString = encrypt(cipher, bytes);
             } else {
-                alteredString = decrypt(cipher, bytes, bufferSize);
+                alteredString = decrypt(cipher, bytes);
             }
         } catch (final Exception e) {
             throw new EncryptionException(e);
@@ -123,16 +123,14 @@ public class EncryptionUtils {
         return alteredString;
     }
 
-    private String encrypt(final Cipher cipher, final byte[] bytes, final int bufferSize) throws IllegalBlockSizeException, BadPaddingException {
-        byte[] buffer = cipher.doFinal(bytes);
-        buffer = Arrays.copyOf(buffer, bufferSize);
+    private String encrypt(final Cipher cipher, final byte[] bytes) throws IllegalBlockSizeException, BadPaddingException {
+        final byte[] buffer = cipher.doFinal(bytes);
         final String encryptedPassword = new String(Base64.encodeBase64(buffer), UTF8).trim();
         return encryptedPassword;
     }
 
-    private String decrypt(final Cipher cipher, final byte[] bytes, final int bufferSize) throws IllegalBlockSizeException, BadPaddingException {
-        byte[] buffer = cipher.doFinal(Base64.decodeBase64(bytes));
-        buffer = Arrays.copyOf(buffer, bufferSize);
+    private String decrypt(final Cipher cipher, final byte[] bytes) throws IllegalBlockSizeException, BadPaddingException {
+        final byte[] buffer = cipher.doFinal(Base64.decodeBase64(bytes));
 
         final String decryptedString = new String(buffer, UTF8).trim();
         return decryptedString;
