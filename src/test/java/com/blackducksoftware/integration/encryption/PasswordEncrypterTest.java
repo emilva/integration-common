@@ -27,15 +27,33 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.blackducksoftware.integration.encryption.PasswordEncrypter;
+import junit.framework.Assert;
 
 public final class PasswordEncrypterTest {
     @Test
     public void testMainEncryptPassword() throws Exception {
         final String encryptedPassword = PasswordEncrypter.encrypt("Password");
 
-        assertEquals("SaTaqurAqc7q0nf0n6IL4erSd/Sfogvh6tJ39J+iC+Hq0nf0n6IL4erSd/Sfogvh6tJ39J+iC+Hq0nf0n6IL4Q==",
-                encryptedPassword);
+        assertEquals("SaTaqurAqc7q0nf0n6IL4erSd/Sfogvh6tJ39J+iC+Hq0nf0n6IL4erSd/Sfogvh6tJ39J+iC+Hq0nf0n6IL4Q==", encryptedPassword);
+    }
+
+    @Test
+    public void testEncryptLongPassword() throws Exception {
+        final String longPassword = "LongPasswordLetsSeeHowLongWeCanEncryptWithoutbreakingThingsLongPasswordLetsSeeHowLongWeCanEncryptWithoutbreakingThingsLongPasswordLetsSeeHowLongWeCanEncryptWithoutbreakingThings";
+        final String encryptedPassword = PasswordEncrypter.encrypt(longPassword);
+        final String decryptedPassword = PasswordDecrypter.decrypt(encryptedPassword);
+
+        System.out.println("Long Password : " + longPassword);
+        System.out.println("Long Password Length : " + longPassword.length());
+        System.out.println("");
+        System.out.println("Encrypted Password : " + encryptedPassword);
+        System.out.println("Encrypted Password Length : " + encryptedPassword.length());
+        System.out.println("");
+        System.out.println("Decrypted Password : " + decryptedPassword);
+        System.out.println("Decrypted Password Length : " + decryptedPassword.length());
+
+        Assert.assertEquals(longPassword.length(), decryptedPassword.length());
+        Assert.assertEquals(longPassword, decryptedPassword);
     }
 
 }
