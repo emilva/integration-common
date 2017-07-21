@@ -53,11 +53,9 @@ public class EncryptionUtils {
     private static final String EMBEDDED_IBM_KEY_FILE = "/IBM-Key.jceks";
 
     // needs to be at least 8 characters
-    private static final char[] KEY_PASS = { 'b', 'l', 'a', 'c', 'k', 'd', 'u', 'c', 'k', '1', '2', '3', 'I', 'n', 't',
-            'e', 'g', 'r', 'a', 't', 'i', 'o', 'n' };
+    private static final char[] KEY_PASS = { 'b', 'l', 'a', 'c', 'k', 'd', 'u', 'c', 'k', '1', '2', '3', 'I', 'n', 't', 'e', 'g', 'r', 'a', 't', 'i', 'o', 'n' };
 
-    public String alterString(final String password, final InputStream encryptionKeyStream, final int cipherMode)
-            throws EncryptionException {
+    public String alterString(final String password, final InputStream encryptionKeyStream, final int cipherMode) throws EncryptionException {
         assertValidPassword(password);
 
         final Key key = getKey(encryptionKeyStream);
@@ -101,17 +99,18 @@ public class EncryptionUtils {
         return key;
     }
 
-    private String getAlteredString(final String original, final int cipherMode, final Key key)
-            throws EncryptionException {
+    private String getAlteredString(final String original, final int cipherMode, final Key key) throws EncryptionException {
         String alteredString = null;
         try {
             byte[] bytes = null;
             final Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
             bytes = original.getBytes(UTF8);
-
+            final int originalBytesLength = bytes.length;
+            // The buffer must be a multiple of 8 or else
+            // the Cipher cant handle it
+            final int bufferSize = originalBytesLength + (8 - originalBytesLength % 8);
             cipher.init(cipherMode, key);
-            bytes = Arrays.copyOf(bytes, 64);
-
+            bytes = Arrays.copyOf(bytes, bufferSize);
             if (Cipher.ENCRYPT_MODE == cipherMode) {
                 alteredString = encrypt(cipher, bytes);
             } else {
@@ -124,26 +123,20 @@ public class EncryptionUtils {
         return alteredString;
     }
 
-    private String encrypt(final Cipher cipher, final byte[] bytes)
-            throws IllegalBlockSizeException, BadPaddingException {
-        byte[] buffer = cipher.doFinal(bytes);
-        buffer = Arrays.copyOf(buffer, 64);
-
+    private String encrypt(final Cipher cipher, final byte[] bytes) throws IllegalBlockSizeException, BadPaddingException {
+        final byte[] buffer = cipher.doFinal(bytes);
         final String encryptedPassword = new String(Base64.encodeBase64(buffer), UTF8).trim();
         return encryptedPassword;
     }
 
-    private String decrypt(final Cipher cipher, final byte[] bytes)
-            throws IllegalBlockSizeException, BadPaddingException {
-        byte[] buffer = cipher.doFinal(Base64.decodeBase64(bytes));
-        buffer = Arrays.copyOf(buffer, 64);
+    private String decrypt(final Cipher cipher, final byte[] bytes) throws IllegalBlockSizeException, BadPaddingException {
+        final byte[] buffer = cipher.doFinal(Base64.decodeBase64(bytes));
 
         final String decryptedString = new String(buffer, UTF8).trim();
         return decryptedString;
     }
 
-    private Key retrieveKeyFromInputStream(final InputStream inputStream) throws NoSuchAlgorithmException,
-            CertificateException, IOException, UnrecoverableKeyException, KeyStoreException {
+    private Key retrieveKeyFromInputStream(final InputStream inputStream) throws NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyStoreException {
         try {
             final KeyStore keystore = KeyStore.getInstance("JCEKS");
             keystore.load(inputStream, KEY_PASS);
