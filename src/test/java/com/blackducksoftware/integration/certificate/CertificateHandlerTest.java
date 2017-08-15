@@ -45,7 +45,6 @@ import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
 
 public class CertificateHandlerTest {
-
     private static final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
 
     private static final CertificateHandler CERT_HANDLER = new CertificateHandler(logger);
@@ -60,7 +59,8 @@ public class CertificateHandlerTest {
     @BeforeClass
     public static void init() throws Exception {
         final String urlString = System.getProperty("HTTPS_URL");
-        // assumeTrue expects the condition to be true, if it is not then it skips the test
+        // assumeTrue expects the condition to be true, if it is not then it
+        // skips the test
         Assume.assumeTrue(StringUtils.isNotBlank(urlString));
         url = new URL(urlString);
         try {
@@ -119,4 +119,34 @@ public class CertificateHandlerTest {
         }
     }
 
+    @Test
+    public void testRetrieveAndImportHttpsCertificateForSpecificJavaHome() throws IntegrationException {
+        final String javaHomeToManipulate = System.getProperty("JAVA_TO_MANIPULATE");
+        Assume.assumeTrue(StringUtils.isNotBlank(javaHomeToManipulate));
+
+        final CertificateHandler certificateHandlerDefault = new CertificateHandler(logger);
+        final CertificateHandler certificateHandler = new CertificateHandler(logger, new File(javaHomeToManipulate));
+
+        Certificate original = null;
+        if (certificateHandler.isCertificateInTrustStore(url)) {
+            original = certificateHandler.retrieveHttpsCertificateFromTrustStore(url);
+            certificateHandler.removeHttpsCertificate(url);
+        }
+
+        try {
+            assertFalse(certificateHandler.isCertificateInTrustStore(url));
+            assertFalse(certificateHandlerDefault.isCertificateInTrustStore(url));
+
+            certificateHandler.retrieveAndImportHttpsCertificate(url);
+
+            assertTrue(certificateHandler.isCertificateInTrustStore(url));
+            assertFalse(certificateHandlerDefault.isCertificateInTrustStore(url));
+
+            certificateHandler.removeHttpsCertificate(url);
+        } finally {
+            if (original != null) {
+                certificateHandler.importHttpsCertificate(url, original);
+            }
+        }
+    }
 }
