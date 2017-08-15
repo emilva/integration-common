@@ -187,29 +187,34 @@ public class CertificateHandler {
     }
 
     private File getTrustStore() {
-        File trustStore = new File(System.getProperty("javax.net.ssl.trustStore", ""));
-        File providedJavaHome = javaHomeOverride;
-
-        // only use the trust store from the system property if it is a file AND
-        // no java home override is provided
-        if (!trustStore.isFile() || providedJavaHome != null) {
-            if (providedJavaHome == null) {
-                providedJavaHome = new File(System.getProperty("java.home"));
-            }
-            // first check for jssecacerts
-            trustStore = new File(providedJavaHome, "lib");
-            trustStore = new File(trustStore, "security");
-            trustStore = new File(trustStore, "jssecacerts");
-
-            // if we can't find jssecacerts, look for cacerts
+        File trustStore;
+        if (javaHomeOverride != null) {
+            trustStore = resolveTrustStoreFile(javaHomeOverride);
+        } else {
+            trustStore = new File(System.getProperty("javax.net.ssl.trustStore", ""));
             if (!trustStore.isFile()) {
-                trustStore = new File(providedJavaHome, "lib");
-                trustStore = new File(trustStore, "security");
-                trustStore = new File(trustStore, "cacerts");
+                final File javaHome = new File(System.getProperty("java.home"));
+                trustStore = resolveTrustStoreFile(javaHome);
             }
         }
 
         return trustStore;
+    }
+
+    private File resolveTrustStoreFile(final File javaHome) {
+        // first check for jssecacerts
+        File trustStoreFile = new File(javaHome, "lib");
+        trustStoreFile = new File(trustStoreFile, "security");
+        trustStoreFile = new File(trustStoreFile, "jssecacerts");
+
+        // if we can't find jssecacerts, look for cacerts
+        if (!trustStoreFile.isFile()) {
+            trustStoreFile = new File(javaHome, "lib");
+            trustStoreFile = new File(trustStoreFile, "security");
+            trustStoreFile = new File(trustStoreFile, "cacerts");
+        }
+
+        return trustStoreFile;
     }
 
     private TrustManager[] getTrustManagers() {
