@@ -51,8 +51,15 @@ import com.blackducksoftware.integration.log.IntLogger;
 public class CertificateHandler {
     private final IntLogger logger;
 
+    private File javaHomeOverride;
+
     public CertificateHandler(final IntLogger intLogger) {
         logger = intLogger;
+    }
+
+    public CertificateHandler(final IntLogger intLogger, final File javaHomeOverride) {
+        this(intLogger);
+        this.javaHomeOverride = javaHomeOverride;
     }
 
     public void retrieveAndImportHttpsCertificate(final URL url) throws IntegrationException {
@@ -93,8 +100,7 @@ public class CertificateHandler {
         return certificate;
     }
 
-    public Certificate retrieveHttpsCertificateFromTrustStore(final URL url)
-            throws IntegrationException {
+    public Certificate retrieveHttpsCertificateFromTrustStore(final URL url) throws IntegrationException {
         final File trustStore = getTrustStore();
         final String trustStorePath = trustStore.getAbsolutePath();
         logger.info(String.format("Removing the certificate from %s", trustStorePath));
@@ -109,8 +115,7 @@ public class CertificateHandler {
         return null;
     }
 
-    public void importHttpsCertificate(final URL url, final Certificate certificate)
-            throws IntegrationException {
+    public void importHttpsCertificate(final URL url, final Certificate certificate) throws IntegrationException {
         final File trustStore = getTrustStore();
         final String trustStorePath = trustStore.getAbsolutePath();
         logger.info(String.format("Importing the certificate from %s into keystore %s", url.getHost(), trustStorePath));
@@ -157,9 +162,9 @@ public class CertificateHandler {
         }
     }
 
-    private KeyStore getKeyStore(final File trustStore)
-            throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        // trustStore must be an existing file and it must not be empty, otherwise we create a new empty keystore
+    private KeyStore getKeyStore(final File trustStore) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        // trustStore must be an existing file and it must not be empty,
+        // otherwise we create a new empty keystore
         if (trustStore.isFile() && trustStore.length() > 0) {
             final PasswordProtection protection = new PasswordProtection(getKeyStorePassword());
             return KeyStore.Builder.newInstance(getTrustStoreType(), null, trustStore, protection).getKeyStore();
@@ -182,18 +187,28 @@ public class CertificateHandler {
     }
 
     private File getTrustStore() {
-        final File javaHome = new File(System.getProperty("java.home"));
         File trustStore = new File(System.getProperty("javax.net.ssl.trustStore", ""));
-        if (!trustStore.isFile()) {
-            trustStore = new File(javaHome, "lib");
+        File providedJavaHome = javaHomeOverride;
+
+        // only use the trust store from the system property if it is a file AND
+        // no java home override is provided
+        if (!trustStore.isFile() || providedJavaHome != null) {
+            if (providedJavaHome == null) {
+                providedJavaHome = new File(System.getProperty("java.home"));
+            }
+            // first check for jssecacerts
+            trustStore = new File(providedJavaHome, "lib");
             trustStore = new File(trustStore, "security");
             trustStore = new File(trustStore, "jssecacerts");
+
+            // if we can't find jssecacerts, look for cacerts
+            if (!trustStore.isFile()) {
+                trustStore = new File(providedJavaHome, "lib");
+                trustStore = new File(trustStore, "security");
+                trustStore = new File(trustStore, "cacerts");
+            }
         }
-        if (!trustStore.isFile()) {
-            trustStore = new File(javaHome, "lib");
-            trustStore = new File(trustStore, "security");
-            trustStore = new File(trustStore, "cacerts");
-        }
+
         return trustStore;
     }
 
