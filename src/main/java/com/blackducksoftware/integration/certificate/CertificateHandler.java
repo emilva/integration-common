@@ -35,21 +35,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import com.blackducksoftware.integration.exception.IntegrationCertificateException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.log.IntLogger;
 
-public class CertificateHandler {
-    private final IntLogger logger;
+public abstract class CertificateHandler {
+    public final IntLogger logger;
 
     private File javaHomeOverride;
 
@@ -63,7 +55,11 @@ public class CertificateHandler {
     }
 
     public void retrieveAndImportHttpsCertificate(final URL url) throws IntegrationException {
+        if (url == null || !url.getProtocol().startsWith("https")) {
+            return;
+        }
         try {
+
             final Certificate certificate = retrieveHttpsCertificateFromURL(url);
             if (certificate == null) {
                 throw new IntegrationCertificateException(String.format("Could not retrieve the Certificate from %s", url));
@@ -76,29 +72,7 @@ public class CertificateHandler {
         }
     }
 
-    public Certificate retrieveHttpsCertificateFromURL(final URL url) throws IntegrationException {
-        logger.info(String.format("Retrieving the certificate from %s", url));
-        Certificate certificate = null;
-        try {
-            final SSLContext sslCtx = SSLContext.getInstance("TLS");
-            sslCtx.init(null, getTrustManagers(), null);
-            final HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setHostnameVerifier(getHostNameVerifier());
-            connection.setSSLSocketFactory(sslCtx.getSocketFactory());
-            if (connection.getResponseCode() == 200) {
-                final Certificate[] certificates = connection.getServerCertificates();
-                if (certificates != null && certificates.length > 0) {
-                    certificate = certificates[0];
-                }
-            }
-            connection.disconnect();
-        } catch (
-
-        final Exception e) {
-            throw new IntegrationException(e);
-        }
-        return certificate;
-    }
+    public abstract Certificate retrieveHttpsCertificateFromURL(final URL url) throws IntegrationException;
 
     public Certificate retrieveHttpsCertificateFromTrustStore(final URL url) throws IntegrationException {
         final File trustStore = getTrustStore();
@@ -215,35 +189,6 @@ public class CertificateHandler {
         }
 
         return trustStoreFile;
-    }
-
-    private TrustManager[] getTrustManagers() {
-        return new TrustManager[] { new X509TrustManager() {
-            private X509Certificate[] accepted;
-
-            @Override
-            public void checkClientTrusted(final java.security.cert.X509Certificate[] xcs, final String string) throws CertificateException {
-            }
-
-            @Override
-            public void checkServerTrusted(final java.security.cert.X509Certificate[] xcs, final String string) throws CertificateException {
-                accepted = xcs;
-            }
-
-            @Override
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return accepted;
-            }
-        } };
-    }
-
-    private HostnameVerifier getHostNameVerifier() {
-        return new HostnameVerifier() {
-            @Override
-            public boolean verify(final String string, final SSLSession ssls) {
-                return true;
-            }
-        };
     }
 
 }

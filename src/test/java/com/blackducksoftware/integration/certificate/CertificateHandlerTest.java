@@ -30,6 +30,15 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.net.URL;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
@@ -47,7 +56,7 @@ import com.blackducksoftware.integration.log.PrintStreamIntLogger;
 public class CertificateHandlerTest {
     private static final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
 
-    private static final CertificateHandler CERT_HANDLER = new CertificateHandler(logger);
+    private static final CertificateHandler CERT_HANDLER = getCertificateHandler(logger, null);
 
     private static URL url;
 
@@ -58,7 +67,7 @@ public class CertificateHandlerTest {
 
     @BeforeClass
     public static void init() throws Exception {
-        final String urlString = System.getProperty("HTTPS_URL");
+        final String urlString = System.getProperty("hub.https.url");
         // assumeTrue expects the condition to be true, if it is not then it
         // skips the test
         Assume.assumeTrue(StringUtils.isNotBlank(urlString));
@@ -85,14 +94,14 @@ public class CertificateHandlerTest {
 
     @Test
     public void testCertificateRetrieval() throws Exception {
-        final CertificateHandler certificateHandler = new CertificateHandler(logger);
+        final CertificateHandler certificateHandler = getCertificateHandler(logger, null);
         final Certificate output = certificateHandler.retrieveHttpsCertificateFromURL(url);
         assertNotNull(output);
     }
 
     @Test
     public void testRetrieveAndImportHttpsCertificate() throws Exception {
-        final CertificateHandler certificateHandler = new CertificateHandler(logger);
+        final CertificateHandler certificateHandler = getCertificateHandler(logger, null);
         certificateHandler.retrieveAndImportHttpsCertificate(url);
         assertTrue(certificateHandler.isCertificateInTrustStore(url));
         assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
@@ -106,7 +115,7 @@ public class CertificateHandlerTest {
         assertTrue(tmpTrustStore.length() == 0);
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath());
-            final CertificateHandler certificateHandler = new CertificateHandler(logger);
+            final CertificateHandler certificateHandler = getCertificateHandler(logger, null);
             certificateHandler.retrieveAndImportHttpsCertificate(url);
             assertTrue(certificateHandler.isCertificateInTrustStore(url));
             assertNotNull(certificateHandler.retrieveHttpsCertificateFromTrustStore(url));
@@ -120,12 +129,12 @@ public class CertificateHandlerTest {
     }
 
     @Test
-    public void testRetrieveAndImportHttpsCertificateForSpecificJavaHome() throws IntegrationException {
+    public void testRetrieveAndImportHttpsCertificateForSpecificJavaHome() throws Exception {
         final String javaHomeToManipulate = System.getProperty("JAVA_TO_MANIPULATE");
         Assume.assumeTrue(StringUtils.isNotBlank(javaHomeToManipulate));
 
-        final CertificateHandler certificateHandlerDefault = new CertificateHandler(logger);
-        final CertificateHandler certificateHandler = new CertificateHandler(logger, new File(javaHomeToManipulate));
+        final CertificateHandler certificateHandlerDefault = getCertificateHandler(logger, null);
+        final CertificateHandler certificateHandler = getCertificateHandler(logger, new File(javaHomeToManipulate));
 
         Certificate original = null;
         if (certificateHandler.isCertificateInTrustStore(url)) {
@@ -149,4 +158,65 @@ public class CertificateHandlerTest {
             }
         }
     }
+
+    private static CertificateHandler getCertificateHandler(final IntLogger logger, final File javaToManipulate) throws RuntimeException {
+        final CertificateHandler certificateHandler = new CertificateHandler(logger, javaToManipulate) {
+            @Override
+            public Certificate retrieveHttpsCertificateFromURL(final URL url) throws IntegrationException {
+                logger.info(String.format("Retrieving the certificate from %s", url));
+                Certificate certificate = null;
+                try {
+                    final SSLContext sslCtx = SSLContext.getInstance("TLS");
+                    sslCtx.init(null, getTrustManagers(), null);
+                    final HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                    connection.setHostnameVerifier(getHostNameVerifier());
+                    connection.setSSLSocketFactory(sslCtx.getSocketFactory());
+                    if (connection.getResponseCode() == 200) {
+                        final Certificate[] certificates = connection.getServerCertificates();
+                        if (certificates != null && certificates.length > 0) {
+                            certificate = certificates[0];
+                        }
+                    }
+                    connection.disconnect();
+                } catch (
+
+                final Exception e) {
+                    throw new IntegrationException(e);
+                }
+                return certificate;
+            }
+
+            private TrustManager[] getTrustManagers() {
+                return new TrustManager[] { new X509TrustManager() {
+                    private X509Certificate[] accepted;
+
+                    @Override
+                    public void checkClientTrusted(final java.security.cert.X509Certificate[] xcs, final String string) throws CertificateException {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(final java.security.cert.X509Certificate[] xcs, final String string) throws CertificateException {
+                        accepted = xcs;
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return accepted;
+                    }
+                } };
+            }
+
+            private HostnameVerifier getHostNameVerifier() {
+                return new HostnameVerifier() {
+                    @Override
+                    public boolean verify(final String string, final SSLSession ssls) {
+                        return true;
+                    }
+                };
+            }
+
+        };
+        return certificateHandler;
+    }
+
 }
