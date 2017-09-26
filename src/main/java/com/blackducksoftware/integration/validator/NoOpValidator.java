@@ -24,10 +24,10 @@
 package com.blackducksoftware.integration.validator;
 
 public class NoOpValidator extends AbstractValidator {
-
     @Override
     public ValidationResults assertValid() {
         final ValidationResults results = new ValidationResults();
         return results;
     }
+
 }

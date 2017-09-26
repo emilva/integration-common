@@ -28,8 +28,7 @@ import java.util.List;
 
 public class IntegrationEscapeUtil {
     /**
-     * Do a poor man's URI escaping. We aren't terribly interested in precision here, or in introducing a library that
-     * would do it better.
+     * Do a poor man's URI escaping. We aren't terribly interested in precision here, or in introducing a library that would do it better.
      */
     public List<String> escapePiecesForUri(final List<String> pieces) {
         final List<String> escapedPieces = new ArrayList<>(pieces.size());

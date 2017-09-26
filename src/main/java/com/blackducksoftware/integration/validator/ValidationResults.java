@@ -33,9 +33,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 public class ValidationResults {
-
     private final Map<FieldEnum, Set<ValidationResult>> resultMap = new LinkedHashMap<>();
-
     private final Set<ValidationResultEnum> status = EnumSet.noneOf(ValidationResultEnum.class);
 
     public void addAllResults(final Map<FieldEnum, Set<ValidationResult>> results) {
@@ -102,4 +100,5 @@ public class ValidationResults {
     public boolean isEmpty() {
         return resultMap.isEmpty();
     }
+
 }

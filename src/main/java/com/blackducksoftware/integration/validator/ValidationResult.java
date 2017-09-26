@@ -28,9 +28,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class ValidationResult {
     private final ValidationResultEnum resultType;
-
     private final String message;
-
     private final Throwable throwable;
 
     public ValidationResult() {
@@ -71,4 +69,5 @@ public class ValidationResult {
         }
         return reflectionToStringBuilder.toString();
     }
+
 }

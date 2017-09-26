@@ -27,7 +27,6 @@ import java.io.PrintStream;
 
 public class PrintStreamIntLogger extends IntLogger {
     private final PrintStream printStream;
-
     private LogLevel logLevel;
 
     public PrintStreamIntLogger(final PrintStream printStream, final LogLevel logLevel) {

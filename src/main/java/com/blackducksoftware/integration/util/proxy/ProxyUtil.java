@@ -31,16 +31,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 public class ProxyUtil {
-
     /**
-     * Checks the list of user defined host names that should be connected to
-     * directly and not go through the proxy. If the hostToMatch matches any of
-     * these hose names then this method returns true.
+     * Checks the list of user defined host names that should be connected to directly and not go through the proxy. If the hostToMatch matches any of these hose names then this method returns true.
      *
      */
     public static boolean shouldIgnoreHost(final String hostToMatch, final List<Pattern> ignoredProxyHostPatterns) {
-        if (StringUtils.isBlank(hostToMatch) || ignoredProxyHostPatterns == null
-                || ignoredProxyHostPatterns.isEmpty()) {
+        if (StringUtils.isBlank(hostToMatch) || ignoredProxyHostPatterns == null || ignoredProxyHostPatterns.isEmpty()) {
             return false;
         }
 

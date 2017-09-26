@@ -35,9 +35,7 @@ import com.blackducksoftware.integration.log.LogLevel;
 
 public class TestLogger extends IntLogger {
     private List<String> outputList = new ArrayList<>();
-
     private List<Throwable> errorList = new ArrayList<>();
-
     private LogLevel logLevel = LogLevel.TRACE;
 
     public List<String> getOutputList() {

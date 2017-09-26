@@ -40,4 +40,5 @@ public abstract class AbstractValidator {
             throw new IllegalArgumentException("The String : " + integer + " , is not an Integer.");
         }
     }
+
 }

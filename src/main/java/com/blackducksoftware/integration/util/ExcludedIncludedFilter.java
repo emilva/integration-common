@@ -31,12 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ExcludedIncludedFilter {
     private final Set<String> excludedSet;
-
     private final Set<String> includedSet;
 
     /**
-     * Provide a comma-separated list of names to exclude and/or a comma-separated list of names to include. Exclusion
-     * rules always win.
+     * Provide a comma-separated list of names to exclude and/or a comma-separated list of names to include. Exclusion rules always win.
      */
     public ExcludedIncludedFilter(final String toExclude, final String toInclude) {
         excludedSet = createSetFromString(toExclude);

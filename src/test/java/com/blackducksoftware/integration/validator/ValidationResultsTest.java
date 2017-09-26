@@ -197,13 +197,11 @@ public class ValidationResultsTest {
 
     @Test
     public void testStringOutput() {
-        final String expected = "HUBURL = ERROR,Can not reach this server,java.io.IOException: Can not reach this server , ERROR,File does not exist,java.io.IOException: File does not exist"
-                + System.lineSeparator() +
-                "SCANTARGET = ERROR,File does not exist,java.io.IOException: File does not exist";
+        final String expected = "HUBURL = ERROR,Can not reach this server,java.io.IOException: Can not reach this server , ERROR,File does not exist,java.io.IOException: File does not exist" + System.lineSeparator()
+                + "SCANTARGET = ERROR,File does not exist,java.io.IOException: File does not exist";
 
         final ValidationResults results = new ValidationResults();
-        final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "Can not reach this server",
-                new IOException("Can not reach this server"));
+        final ValidationResult result = new ValidationResult(ValidationResultEnum.ERROR, "Can not reach this server", new IOException("Can not reach this server"));
         final ValidationResult result2 = new ValidationResult(ValidationResultEnum.ERROR, "File does not exist", new IOException("File does not exist"));
         results.addResult(TestField.HUBURL, result);
         results.addResult(TestField.HUBURL, result);
@@ -220,8 +218,7 @@ public class ValidationResultsTest {
 
     @Test
     public void testNonNullThrowableIsInString() {
-        final ValidationResult validationResult = new ValidationResult(ValidationResultEnum.WARN, "Lookout, there's a TIGER BEHIND YOU!!!",
-                new Exception("nobody wants to be eaten by a tiger"));
+        final ValidationResult validationResult = new ValidationResult(ValidationResultEnum.WARN, "Lookout, there's a TIGER BEHIND YOU!!!", new Exception("nobody wants to be eaten by a tiger"));
         final String validationResultString = validationResult.toString();
         assertFalse(validationResultString.contains("null"));
         assertTrue(validationResultString.contains("Lookout, there's a TIGER BEHIND YOU!!!"));
@@ -230,15 +227,17 @@ public class ValidationResultsTest {
 
     @Test
     public void testNullThrowableIsNotInString() {
-        final ValidationResult validationResult = new ValidationResult(ValidationResultEnum.ERROR,
-                "You did not heed the warning...you have been eaten by a tiger. Shame.");
+        final ValidationResult validationResult = new ValidationResult(ValidationResultEnum.ERROR, "You did not heed the warning...you have been eaten by a tiger. Shame.");
         final String validationResultString = validationResult.toString();
         assertFalse(validationResultString.contains("null"));
         assertTrue(validationResultString.contains("You did not heed the warning...you have been eaten by a tiger. Shame."));
     }
 
     private static enum TestField implements FieldEnum {
-        HUBURL("HubURL"), SCANTARGET("ScanTarget"), KEY_0("Key0"), KEY_1("Key1");
+        HUBURL("HubURL"),
+        SCANTARGET("ScanTarget"),
+        KEY_0("Key0"),
+        KEY_1("Key1");
 
         private final String key;
 

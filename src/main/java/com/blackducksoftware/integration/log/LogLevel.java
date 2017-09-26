@@ -26,16 +26,19 @@ package com.blackducksoftware.integration.log;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The declared order of the LogLevels are important - your set level is loggable as are all the levels to the left.
- * For example, if you set your LogLevel to INFO, INFO will be loggable, as will the levels to its left, WARN and ERROR.
- * As there are no levels to the left of OFF, nothing will be logged when that level is set.
+ * The declared order of the LogLevels are important - your set level is loggable as are all the levels to the left. For example, if you set your LogLevel to INFO, INFO will be loggable, as will the levels to its left, WARN and ERROR. As
+ * there are no levels to the left of OFF, nothing will be logged when that level is set.
  */
 public enum LogLevel {
-    OFF, ERROR, WARN, INFO, DEBUG, TRACE;
+    OFF,
+    ERROR,
+    WARN,
+    INFO,
+    DEBUG,
+    TRACE;
 
     /**
-     * @deprecated
-     *             Please use the instance method isLoggable(LogLevel logLevel) instead.
+     * @deprecated Please use the instance method isLoggable(LogLevel logLevel) instead.
      */
     @Deprecated
     public static boolean isLoggable(final LogLevel logger, final LogLevel message) {

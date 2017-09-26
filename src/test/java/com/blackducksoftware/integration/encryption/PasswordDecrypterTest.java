@@ -63,8 +63,7 @@ public class PasswordDecrypterTest {
 
     @Test
     public void testPasswordDecryptionAgain() throws Exception {
-        assertEquals("testing",
-                PasswordDecrypter.decrypt(encryptedUserPassword.getProperty("test@blackducksoftware.com")));
+        assertEquals("testing", PasswordDecrypter.decrypt(encryptedUserPassword.getProperty("test@blackducksoftware.com")));
     }
 
     @Test

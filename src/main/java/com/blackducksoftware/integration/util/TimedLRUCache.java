@@ -31,59 +31,54 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 
-public class TimedLRUCache <T, S> {
-	private final ConcurrentHashMap<T, S> cache;
+public class TimedLRUCache<T, S> {
+    private final ConcurrentHashMap<T, S> cache;
+    private final ConcurrentHashMap<T, Timestamp> cacheKeyTTL;
+    private Timestamp oldestKeyAge;
+    private final int cacheTimeout;
+    private final int cacheCapacity;
 
-	private final ConcurrentHashMap<T, Timestamp> cacheKeyTTL;
+    public TimedLRUCache(final int cacheCapacity, final int cacheTimeout) {
+        this.cacheCapacity = cacheCapacity;
+        this.cacheTimeout = cacheTimeout;
+        cache = new ConcurrentHashMap<>();
+        cacheKeyTTL = new ConcurrentHashMap<>();
+    }
 
-	private Timestamp oldestKeyAge;
+    public S get(final T key) throws IntegrationException {
+        final S value = cache.get(key);
+        final Timestamp staleTime = new Timestamp(System.currentTimeMillis() - cacheTimeout);
+        if (oldestKeyAge != null && oldestKeyAge.before(staleTime)) {
+            removeStaleKeys(staleTime);
+        }
+        return value;
+    }
 
-	private final int cacheTimeout;
+    public void put(final T key, final S value) {
+        if (cache.size() == cacheCapacity) {
+            cache.remove(Collections.min(cacheKeyTTL.entrySet(), new Comparator<Entry<T, Timestamp>>() {
+                @Override
+                public int compare(final Entry<T, Timestamp> entry1, final Entry<T, Timestamp> entry2) {
+                    return entry1.getValue().getNanos() - entry2.getValue().getNanos();
+                }
+            }).getKey());
+        }
+        cache.put(key, value);
+        cacheKeyTTL.put(key, new Timestamp(System.currentTimeMillis()));
+    }
 
-	private final int cacheCapacity;
-
-	public TimedLRUCache(final int cacheCapacity, final int cacheTimeout) {
-		this.cacheCapacity = cacheCapacity;
-		this.cacheTimeout = cacheTimeout;
-		cache = new ConcurrentHashMap<>();
-		cacheKeyTTL = new ConcurrentHashMap<>();
-	}
-
-	public S get(final T key) throws IntegrationException {
-		final S value = cache.get(key);
-		final Timestamp staleTime = new Timestamp(System.currentTimeMillis() - cacheTimeout);
-		if (oldestKeyAge != null && oldestKeyAge.before(staleTime)) {
-			removeStaleKeys(staleTime);
-		}
-		return value;
-	}
-
-	public void put(final T key, final S value){
-		if (cache.size() == cacheCapacity) {
-			cache.remove(Collections.min(cacheKeyTTL.entrySet(),
-					new Comparator<Entry<T, Timestamp>>() {
-				@Override
-				public int compare(final Entry<T, Timestamp> entry1, final Entry<T, Timestamp> entry2) {
-					return entry1.getValue().getNanos() - entry2.getValue().getNanos();
-				}
-			}).getKey());
-		}
-		cache.put(key, value);
-		cacheKeyTTL.put(key, new Timestamp(System.currentTimeMillis()));
-	}
-
-	private void removeStaleKeys(final Timestamp staleTime) {
-		oldestKeyAge = null;
-		for(final Entry<T, Timestamp> entry : cacheKeyTTL.entrySet()) {
-			final T livingKey = entry.getKey();
-			final Timestamp keyStaleTime = entry.getValue();
-			if (keyStaleTime.before(staleTime)) {
-				cache.remove(livingKey);
-				cacheKeyTTL.remove(livingKey);
-			} else {
-				oldestKeyAge = (oldestKeyAge == null || oldestKeyAge.after(keyStaleTime)) ? keyStaleTime : oldestKeyAge;
-			}
-		}
-	}
+    private void removeStaleKeys(final Timestamp staleTime) {
+        oldestKeyAge = null;
+        for (final Entry<T, Timestamp> entry : cacheKeyTTL.entrySet()) {
+            final T livingKey = entry.getKey();
+            final Timestamp keyStaleTime = entry.getValue();
+            if (keyStaleTime.before(staleTime)) {
+                cache.remove(livingKey);
+                cacheKeyTTL.remove(livingKey);
+            } else {
+                oldestKeyAge = (oldestKeyAge == null || oldestKeyAge.after(keyStaleTime)) ? keyStaleTime : oldestKeyAge;
+            }
+        }
+    }
 
 }

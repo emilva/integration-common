@@ -47,9 +47,7 @@ import com.blackducksoftware.integration.exception.EncryptionException;
 
 public class EncryptionUtils {
     private static final Charset UTF8 = Charset.forName("UTF-8");
-
     private static final String EMBEDDED_SUN_KEY_FILE = "/Sun-Key.jceks";
-
     private static final String EMBEDDED_IBM_KEY_FILE = "/IBM-Key.jceks";
 
     // needs to be at least 8 characters

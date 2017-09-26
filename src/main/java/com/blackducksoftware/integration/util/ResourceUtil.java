@@ -51,13 +51,11 @@ public class ResourceUtil {
         return null;
     }
 
-    public static String getResourceAsString(final Class<?> clazz, final String resourceName, final String encoding)
-            throws IOException {
+    public static String getResourceAsString(final Class<?> clazz, final String resourceName, final String encoding) throws IOException {
         return getResourceAsString(clazz, resourceName, Charsets.toCharset(encoding));
     }
 
-    public static String getResourceAsString(final Class<?> clazz, final String resourceName, final Charset encoding)
-            throws IOException {
+    public static String getResourceAsString(final Class<?> clazz, final String resourceName, final Charset encoding) throws IOException {
         final InputStream inputStream = getResourceAsStream(clazz, resourceName);
         if (inputStream != null) {
             return IOUtils.toString(inputStream, encoding);
